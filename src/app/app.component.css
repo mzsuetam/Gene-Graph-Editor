@@ -1,0 +1,66 @@
+*{
+	padding: 0;
+	margin: 0;
+	font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#canvas{
+	background-color:whitesmoke;
+	width: 100vw;
+	height: 100vh;
+}
+
+
+.node{
+	position: absolute;
+
+	background: yellow;
+	cursor: move;
+
+	border-radius: 50%;
+}
+
+.node p {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	
+	text-align: center;
+	font-weight: bold;
+}
+
+.edge{
+	overflow: visible;
+	position: absolute;
+	transform-origin: left top;
+}
+
+.edge path{
+	fill: none;
+	cursor: sw-resize;
+}
+
+.edge text {
+	font-size: large;
+	font-weight: bold;
+	stroke: none;
+}
+
+.edge-type-1{
+	stroke: red;
+	fill: black;
+}
+
+.edge-type-2{
+	stroke: blue;
+	fill: black;
+}
