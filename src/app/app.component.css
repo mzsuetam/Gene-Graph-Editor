@@ -12,6 +12,14 @@
     user-select: none;
 }
 
+.menu-button{
+	padding: 5px;
+}
+
+.menu-button.selected{
+	background-color:cadetblue;
+}
+
 #canvas{
 	background-color:whitesmoke;
 	width: 100vw;
@@ -23,9 +31,12 @@
 	position: absolute;
 
 	background: yellow;
-	cursor: move;
 
 	border-radius: 50%;
+}
+
+.node.selected{
+	background: orange;
 }
 
 .node p {
@@ -38,6 +49,10 @@
 	font-weight: bold;
 }
 
+.node.onHandTool{
+	background-color: red;
+}
+
 .edge{
 	overflow: visible;
 	position: absolute;
@@ -46,7 +61,6 @@
 
 .edge path{
 	fill: none;
-	cursor: sw-resize;
 }
 
 .edge text {
@@ -56,11 +70,17 @@
 }
 
 .edge-type-1{
-	stroke: red;
+	stroke:crimson;
 	fill: black;
 }
 
 .edge-type-2{
-	stroke: blue;
+	stroke:aqua;
 	fill: black;
+}
+
+.sup-text{
+	position: absolute;
+	top: 0;
+	left: 50px;
 }

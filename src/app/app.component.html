@@ -1,6 +1,11 @@
+<div>
+	<button (click)="setTool(0)" class="menu-button" [ngClass]="{selected : tool == 0}">Hand</button>
+	<button (click)="setTool(3)" class="menu-button" [ngClass]="{selected : tool == 3}">Edit</button>
+	<button (click)="setTool(1)" class="menu-button" [ngClass]="{selected : tool == 1}">Add Node</button>
+	<button (click)="setTool(2)" class="menu-button" [ngClass]="{selected : tool == 2}">Add Edge</button>
+</div>
 
-<div id="canvas">
-
+<div id="canvas" [style.cursor]="getCursorStyle('canvas')">
 	<svg *ngFor="let e of edges_1" id="edge-1-{{e.id}}" [class]="'edge edge-type-1'" [attr.height]="e.physical.height" [attr.width]="e.physical.width"
 		[style.left.px]="!isEdge1Flipped(e.id) ? e.physical.x : e.physical.x" 
 		[style.top.px]="!isEdge1Flipped(e.id) ? e.physical.y : e.physical.y">
@@ -13,7 +18,7 @@
 				<path d="M 10 0 L 0 5 L 10 10" stroke-width="2"/>
 			</marker>
 		</defs>
-		<path id="edge-1-{{e.id}}-path"
+		<path id="edge-1-{{e.id}}-path" [style.cursor]="getCursorStyle('edge')"
 			[attr.d]="!isEdge1Flipped(e.id) ? 'M 0 0 C ' + e.physical.v1_x + ' ' + e.physical.v1_y + ' ' + e.physical.v2_x + ' ' + e.physical.v2_y + ' ' + e.physical.width + ' ' + e.physical.height
 			: 'M 0 0 C ' + e.physical.v2_x + ' ' + e.physical.v2_y + ' ' + e.physical.v1_x + ' ' + e.physical.v1_y + ' '  + e.physical.width + ' ' + e.physical.height"
 			[attr.marker-end]="!isEdge1Flipped(e.id) && isEdge1LongEnough(e.id) ? 'url(#triangle-1-right)' : ''"
@@ -21,40 +26,46 @@
 			stroke-width="5" fill="none" [attr.transform]="isEdge1Flipped(e.id) ? 'rotate(180, '+ e.physical.width + ', ' + e.physical.height + ') translate('+ e.physical.width + ', ' + e.physical.height + ')' : ''"/>
 		<text>
 			<textPath [attr.xlink:href]="'#edge-1-'+e.id+'-path'" text-anchor="middle" startOffset="50%" >
-				E{{e.id}}
+				<tspan>{{e.badge.text}}</tspan>
+				<tspan [attr.dy]="settings.physical.sub_text" font-size=".6em">{{e.badge.sub}}</tspan>
+				<tspan [attr.dy]="settings.physical.sup_text" font-size=".6em">{{e.badge.sup}}</tspan>
 			</textPath>
 		</text>
 	</svg>
-
 	<svg *ngFor="let e of edges_2" id="edge-2-{{e.id}}" [class]="'edge edge-type-2'" [attr.height]="e.physical.height" [attr.width]="e.physical.width"
-	[style.left.px]="!isEdge2Flipped(e.id) ? e.physical.x : e.physical.x" 
-	[style.top.px]="!isEdge2Flipped(e.id) ? e.physical.y : e.physical.y">
-	<defs>
-		<marker id="triangle-2-right" viewBox="2 0 10 10" refX="22" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-			<path d="M 0 0 L 10 5 L 0 10 z" [class]="'edge-type-2'" stroke-width="2"/>
-			<!-- https://yqnn.github.io/svg-path-editor/ -->
-		</marker>
-		<marker id="triangle-2-left" viewBox="0 0 9 10" refX="-12" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-			<path d="M 10 0 L 0 5 L 10 10" stroke-width="2"/>
-		</marker>
-	</defs>
-	<path id="edge-2-{{e.id}}-path"
-		[attr.d]="!isEdge2Flipped(e.id) ? 'M 0 0 C ' + e.physical.v1_x + ' ' + e.physical.v1_y + ' ' + e.physical.v2_x + ' ' + e.physical.v2_y + ' ' + e.physical.width + ' ' + e.physical.height
-		: 'M 0 0 C ' + e.physical.v2_x + ' ' + e.physical.v2_y + ' ' + e.physical.v1_x + ' ' + e.physical.v1_y + ' '  + e.physical.width + ' ' + e.physical.height"
-		[attr.marker-end]="!isEdge2Flipped(e.id) && isEdge2LongEnough(e.id) ? 'url(#triangle-2-right)' : ''"
-		[attr.marker-start]="isEdge2Flipped(e.id) && isEdge2LongEnough(e.id) ? 'url(#triangle-2-left)' : ''" 
-		stroke-width="5" fill="none" [attr.transform]="isEdge2Flipped(e.id) ? 'rotate(180, '+ e.physical.width + ', ' + e.physical.height + ') translate('+ e.physical.width + ', ' + e.physical.height + ')' : ''"/>
-	<text>
-		<textPath [attr.xlink:href]="'#edge-2-'+e.id+'-path'" text-anchor="middle" startOffset="50%" >
-			F{{e.id}}
-		</textPath>
-	</text>
-</svg>
-
-	<div *ngFor="let n of nodes" id="node-{{n.id}}" class="node"
+		[style.left.px]="!isEdge2Flipped(e.id) ? e.physical.x : e.physical.x" 
+		[style.top.px]="!isEdge2Flipped(e.id) ? e.physical.y : e.physical.y">
+		<defs>
+			<marker id="triangle-2-right" viewBox="2 0 10 10" refX="22" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+				<path d="M 0 0 L 10 5 L 0 10 z" [class]="'edge-type-2'" stroke-width="2"/>
+				<!-- https://yqnn.github.io/svg-path-editor/ -->
+			</marker>
+			<marker id="triangle-2-left" viewBox="0 0 9 10" refX="-12" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+				<path d="M 10 0 L 0 5 L 10 10" stroke-width="2"/>
+			</marker>
+		</defs>
+		<path id="edge-2-{{e.id}}-path" [style.cursor]="getCursorStyle('edge')"
+			[attr.d]="!isEdge2Flipped(e.id) ? 'M 0 0 C ' + e.physical.v1_x + ' ' + e.physical.v1_y + ' ' + e.physical.v2_x + ' ' + e.physical.v2_y + ' ' + e.physical.width + ' ' + e.physical.height
+			: 'M 0 0 C ' + e.physical.v2_x + ' ' + e.physical.v2_y + ' ' + e.physical.v1_x + ' ' + e.physical.v1_y + ' '  + e.physical.width + ' ' + e.physical.height"
+			[attr.marker-end]="!isEdge2Flipped(e.id) && isEdge2LongEnough(e.id) ? 'url(#triangle-2-right)' : ''"
+			[attr.marker-start]="isEdge2Flipped(e.id) && isEdge2LongEnough(e.id) ? 'url(#triangle-2-left)' : ''" 
+			stroke-width="5" fill="none" [attr.transform]="isEdge2Flipped(e.id) ? 'rotate(180, '+ e.physical.width + ', ' + e.physical.height + ') translate('+ e.physical.width + ', ' + e.physical.height + ')' : ''"/>
+			<text>
+			<textPath [attr.xlink:href]="'#edge-2-'+e.id+'-path'" text-anchor="middle" startOffset="50%" >
+				<tspan>{{e.badge.text}}</tspan>
+				<tspan [attr.dy]="settings.physical.sub_text" font-size=".6em">{{e.badge.sub}}</tspan>
+				<tspan [attr.dy]="settings.physical.sup_text" font-size=".6em">{{e.badge.sup}}</tspan>
+			</textPath>
+		</text>
+	</svg>
+	<div *ngFor="let n of nodes" id="node-{{n.id}}" class="node" [ngClass]="{selected : isSelected(n.id)}" (click)="flipSelection(n.id)"
 		[style.width.px]="n.physical.width" [style.height.px]="n.physical.height"
 		[style.left.px]="n.physical.x - n.physical.height/2"  [style.top.px]="n.physical.y - n.physical.height/2"
-		><p>N{{n.id}}</p>
+		[style.cursor]="getCursorStyle('node')">
+		<p><span>{{n.badge.text}}</span>
+			<sub>{{n.badge.sub}}</sub>
+			<sup>{{n.badge.sup}}</sup>
+		</p>
 	</div>
 </div>
   
