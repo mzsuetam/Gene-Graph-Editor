@@ -20,6 +20,13 @@ export class AppComponent {
 
   settings = {
     dragging_enabled: true,
+    
+    show_curtain: false,
+    show_properties_window: {
+      node: false,
+      edge_1: false,
+      edge_2: false
+    },
 
     physical: {
       sub_text: 3,
@@ -37,6 +44,9 @@ export class AppComponent {
   edges_1 : Edge[] = [] as Edge[]
   edges_2 : Edge[] = [] as Edge[]
 
+  focused_node : number = 0; // for properties windows
+  focused_edge_1 : number = 0; // for properties windows
+  focused_edge_2 : number = 0; // for properties windows
   selected_nodes : number[] = []
 
   constructor(){
@@ -138,7 +148,9 @@ export class AppComponent {
         })
       }
       else if ( this.tool == Tool.EDIT && e.button == 0 ){
-        alert("Node details")
+        this.focused_node = id
+        this.settings.show_curtain = true
+        this.settings.show_properties_window.node = true
       }
 
     });
@@ -202,7 +214,9 @@ export class AppComponent {
           })
         }
         else if ( this.tool == Tool.EDIT && e.button == 0 ){
-          alert("Edge details")
+          this.focused_edge_1 = id
+          this.settings.show_curtain = true
+          this.settings.show_properties_window.edge_1 = true
         }
       });
 
@@ -262,7 +276,9 @@ export class AppComponent {
           })
         }
         else if ( this.tool == Tool.EDIT && e.button == 0 ){
-          alert("Edge details")
+          this.focused_edge_2 = id
+          this.settings.show_curtain = true
+          this.settings.show_properties_window.edge_2 = true
         }
       });
     }
@@ -353,6 +369,27 @@ export class AppComponent {
     return ""
   }
 
+  closeCurtainAndPropertiesWindows(){
+    this.settings.show_curtain = false
+    this.settings.show_properties_window.node = false
+    this.settings.show_properties_window.edge_1 = false
+    this.settings.show_properties_window.edge_2 = false
+  }
+
+  getEdgeTag(x:number): string{
+    if ( x == 1 ){
+      return EDGE_1_TAG
+    }
+    return EDGE_2_TAG // if x==2
+  }
+
+  getInputValueAsString(event : Event) : string {
+    return (event.target as HTMLInputElement).value;
+  }
+
+  getInputValueAsNumber(event : Event) : number {
+    return (event.target as HTMLInputElement).value as unknown as number;
+  }
 }
 
 export class Mouse {

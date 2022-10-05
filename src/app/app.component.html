@@ -1,11 +1,15 @@
-<div>
-	<button (click)="setTool(0)" class="menu-button" [ngClass]="{selected : tool == 0}">Hand</button>
-	<button (click)="setTool(3)" class="menu-button" [ngClass]="{selected : tool == 3}">Edit</button>
-	<button (click)="setTool(1)" class="menu-button" [ngClass]="{selected : tool == 1}">Add Node</button>
-	<button (click)="setTool(2)" class="menu-button" [ngClass]="{selected : tool == 2}">Add Edge</button>
+<!-- SECTION OF TOOL BAR -->
+<div id="tool-bar">
+	<button (click)="setTool(0)" class="tool-button" [ngClass]="{selected : tool == 0}">Hand</button>
+	<button (click)="setTool(3)" class="tool-button" [ngClass]="{selected : tool == 3}">Edit</button>
+	<button (click)="setTool(1)" class="tool-button" [ngClass]="{selected : tool == 1}">Add Node</button>
+	<button (click)="setTool(2)" class="tool-button" [ngClass]="{selected : tool == 2}">Add Edge</button>
+	<p>Graph Playground by Mateusz Mazur</p>
 </div>
 
+<!-- SECTION OF CANVAS -->
 <div id="canvas" [style.cursor]="getCursorStyle('canvas')">
+	<!-- EDGES 1 -->
 	<svg *ngFor="let e of edges_1" id="edge-1-{{e.id}}" [class]="'edge edge-type-1'" [attr.height]="e.physical.height" [attr.width]="e.physical.width"
 		[style.left.px]="!isEdge1Flipped(e.id) ? e.physical.x : e.physical.x" 
 		[style.top.px]="!isEdge1Flipped(e.id) ? e.physical.y : e.physical.y">
@@ -32,6 +36,7 @@
 			</textPath>
 		</text>
 	</svg>
+	<!-- EDGES 2 -->
 	<svg *ngFor="let e of edges_2" id="edge-2-{{e.id}}" [class]="'edge edge-type-2'" [attr.height]="e.physical.height" [attr.width]="e.physical.width"
 		[style.left.px]="!isEdge2Flipped(e.id) ? e.physical.x : e.physical.x" 
 		[style.top.px]="!isEdge2Flipped(e.id) ? e.physical.y : e.physical.y">
@@ -58,6 +63,7 @@
 			</textPath>
 		</text>
 	</svg>
+	<!-- NODES -->
 	<div *ngFor="let n of nodes" id="node-{{n.id}}" class="node" [ngClass]="{selected : isSelected(n.id)}" (click)="flipSelection(n.id)"
 		[style.width.px]="n.physical.width" [style.height.px]="n.physical.height"
 		[style.left.px]="n.physical.x - n.physical.height/2"  [style.top.px]="n.physical.y - n.physical.height/2"
@@ -68,5 +74,94 @@
 		</p>
 	</div>
 </div>
-  
-  
+
+<!-- SECTION OF CURTAIN -->
+<div class="curtain" [ngClass]="{ show : settings.show_curtain }" (click)="closeCurtainAndPropertiesWindows()" >
+</div> 
+<div class="properties-window" [ngClass]="{ show : settings.show_properties_window.node}">
+	<!-- NODE PROPERTIES WINDOW -->
+	<div class="properties-top-bar" >
+		<span>Node properties</span>
+		<button (click)="closeCurtainAndPropertiesWindows()">X</button>
+	</div>
+	<p>
+		Badge main text: <input type="text" [value]="nodes[focused_node].badge.text" 
+			(input)="nodes[focused_node].badge.text = getInputValueAsString($event)">
+	</p>
+	<p>
+		Badge sup text: <input type="text" [value]="nodes[focused_node].badge.sup" 
+			(input)="nodes[focused_node].badge.sup = getInputValueAsString($event)">
+	</p>
+	<p>
+		Badge sub text: <input type="text" [value]="nodes[focused_node].badge.sub" 
+			(input)="nodes[focused_node].badge.sub = getInputValueAsString($event)">
+	</p>
+	<div class="properties-window-sep"></div>
+	<p title="You cannot change this property in properties panel">
+		Coord X: <span class="properties-window-disabled-input">{{nodes[focused_node].physical.x}}
+			<sub></sub><sup></sup>
+		</span>
+	</p>
+	<p title="You cannot change this property in properties panel">
+		Coord Y: <span class="properties-window-disabled-input">{{nodes[focused_node].physical.y}}
+			<sub></sub><sup></sup>
+		</span>
+	</p>
+</div>
+<div class="properties-window" [ngClass]="{ show : settings.show_properties_window.edge_1 }">
+	<!-- EDGE 1 PROPERTIES WINDOW -->
+	<div class="properties-top-bar" >
+		<span>Edge {{getEdgeTag(1)}} properties</span>
+		<button  (click)="closeCurtainAndPropertiesWindows()">X</button>
+	</div>
+	<p>
+		Badge main text: <input type="text" [value]="edges_1[focused_edge_1].badge.text" 
+			(input)="edges_1[focused_edge_1].badge.text = getInputValueAsString($event)">
+	</p>
+	<p>
+		Badge sup text: <input type="text" [value]="edges_1[focused_edge_1].badge.sup" 
+			(input)="edges_1[focused_edge_1].badge.sup = getInputValueAsString($event)">
+	</p>
+	<p>
+		Badge sub text: <input type="text" [value]="edges_1[focused_edge_1].badge.sub" 
+			(input)="edges_1[focused_edge_1].badge.sub = getInputValueAsString($event)">
+	</p>
+	<div class="properties-window-sep"></div>
+	<p title="You cannot change this property in properties panel">
+		Start node: <span class="properties-window-disabled-input">
+			{{nodes[edges_1[focused_edge_1].start_node].badge.text}}<sub>{{nodes[edges_1[focused_edge_1].start_node].badge.sub}}</sub><sup>{{nodes[edges_1[focused_edge_1].start_node].badge.sup}}</sup>
+		</span>
+	</p>
+	<p title="You cannot change this property in properties panel">
+		End node: <span class="properties-window-disabled-input">{{nodes[edges_1[focused_edge_1].end_node].badge.text}}<sub>{{nodes[edges_1[focused_edge_1].end_node].badge.sub}}</sub><sup>{{nodes[edges_1[focused_edge_1].end_node].badge.sup}}</sup>
+		</span> 
+	</p>
+</div>
+<div class="properties-window" [ngClass]="{ show : settings.show_properties_window.edge_2 }">
+	<!-- EDGE 2 PROPERTIES WINDOW -->
+	<div class="properties-top-bar" >
+		<span>Edge {{getEdgeTag(2)}} properties</span>
+		<button  (click)="closeCurtainAndPropertiesWindows()">X</button>
+	</div>
+	<p>
+		Badge main text: <input type="text" [value]="edges_2[focused_edge_2].badge.text" 
+			(input)="edges_2[focused_edge_2].badge.text = getInputValueAsString($event)">
+	</p>
+	<p>
+		Badge sup text: <input type="text" [value]="edges_2[focused_edge_2].badge.sup" 
+			(input)="edges_2[focused_edge_2].badge.sup = getInputValueAsString($event)">
+	</p>
+	<p>
+		Badge sub text: <input type="text" [value]="edges_2[focused_edge_2].badge.sub" 
+			(input)="edges_2[focused_edge_2].badge.sub = getInputValueAsString($event)">
+	</p>
+	<div class="properties-window-sep"></div>
+	<p title="You cannot change this property in properties panel">
+		Start node: <span class="properties-window-disabled-input">{{nodes[edges_2[focused_edge_2].start_node].badge.text}}<sub>{{nodes[edges_2[focused_edge_2].start_node].badge.sub}}</sub><sup>{{nodes[edges_2[focused_edge_2].start_node].badge.sup}}</sup>
+		</span>
+	</p>
+	<p title="You cannot change this property in properties panel">
+		End node: <span class="properties-window-disabled-input">{{nodes[edges_2[focused_edge_2].end_node].badge.text}}<sub>{{nodes[edges_2[focused_edge_2].end_node].badge.sub}}</sub><sup>{{nodes[edges_2[focused_edge_2].end_node].badge.sup}}</sup>
+		</span> 
+	</p>
+</div>
