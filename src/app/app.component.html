@@ -1,9 +1,10 @@
 <!-- SECTION OF TOOL BAR -->
 <div id="tool-bar">
 	<button (click)="setTool(0)" class="tool-button" [ngClass]="{selected : tool == 0}">Hand</button>
-	<button (click)="setTool(3)" class="tool-button" [ngClass]="{selected : tool == 3}">Edit</button>
-	<button (click)="setTool(1)" class="tool-button" [ngClass]="{selected : tool == 1}">Add Node</button>
-	<button (click)="setTool(2)" class="tool-button" [ngClass]="{selected : tool == 2}">Add Edge</button>
+	<button (click)="setTool(1)" class="tool-button" [ngClass]="{selected : tool == 1}">Edit</button>
+	<button (click)="setTool(2)" class="tool-button" [ngClass]="{selected : tool == 2}">Add Node</button>
+	<button (click)="setTool(3)" class="tool-button" [ngClass]="{selected : tool == 3}">Add Edge {{getEdgeTag(1)}}</button>
+	<button (click)="setTool(4)" class="tool-button" [ngClass]="{selected : tool == 4}">Add Edge {{getEdgeTag(2)}}</button>
 	<p>Graph Playground by Mateusz Mazur</p>
 </div>
 

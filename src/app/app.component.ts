@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { TitleStrategy } from '@angular/router';
 
 //////////////////////////////
 
@@ -9,7 +10,7 @@ const EDGE_2_TAG = "f"
 //////////////////////////////
 
 enum EdgeType { E, F }
-enum Tool { HAND, ADDNODE, ADDEDGE, EDIT }
+enum Tool { HAND, EDIT, ADDNODE, ADDEDGE1, ADDEDGE2 }
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -64,14 +65,18 @@ export class AppComponent {
   ngOnInit(){
     document.getElementById('canvas')!.addEventListener('click', (event) => {
       if ( this.tool == Tool.ADDNODE ){
-        alert(this.mouse.x+" "+this.mouse.y)
+        let n = this.nodes.length
+        this.addNode(this.mouse.x,this.mouse.y)
+        this.focused_node = n
+        this.settings.show_curtain = true
+        this.settings.show_properties_window.node = true
       }
     });
 
-    this.addNode()
-    this.addNode()
-    this.addNode()
-    this.addNode({text:"bage", sub:"", sup:"4"})
+    this.addNode(500,500)
+    this.addNode(700,300)
+    this.addNode(700,700)
+    this.addNode(900,500,{text:"bage", sub:"", sup:"4"})
     
     this.addEdge(0, 1, EdgeType.E)
     this.addEdge(0, 2, EdgeType.E)
@@ -83,9 +88,9 @@ export class AppComponent {
     this.addEdge(2, 0, EdgeType.F, {text:"text", sub:"sub", sup:"sup"})
   }
 
-  public async addNode(badge?: Badge){
+  public async addNode(x:number, y:number, badge?: Badge){
     let id = this.nodes.length
-    let new_node = new Node(id, this.settings.physical.node_size, badge)
+    let new_node = new Node(id, this.settings.physical.node_size, x,y, badge)
 
     this.nodes.push( new_node )
     
@@ -160,7 +165,7 @@ export class AppComponent {
     // @FIXME: merge this if's
     if ( type == EdgeType.E ){
       let id = this.edges_1.length
-      let new_edge = new Edge(id, start, end, type, badge)
+      let new_edge = new Edge(id, this.nodes, start, end, type, badge)
 
       this.nodes[start].edges_1_out.push(id)
       this.nodes[end].edges_1_in.push(id)
@@ -223,7 +228,7 @@ export class AppComponent {
     }
     else if ( type == EdgeType.F){
       let id = this.edges_2.length
-      let new_edge = new Edge(id, start, end, type, badge)
+      let new_edge = new Edge(id, this.nodes, start, end, type, badge)
       this.nodes[start].edges_2_out.push(id)
       this.nodes[end].edges_2_in.push(id)
   
@@ -318,7 +323,7 @@ export class AppComponent {
   }
 
   async flipSelection(n : number){
-    if ( this.tool != Tool.ADDEDGE ) return
+    if ( this.tool != Tool.ADDEDGE1 && this.tool != Tool.ADDEDGE2 ) return
     if ( this.isSelected(n) ){
       this.selected_nodes = this.selected_nodes.filter(x => x != n)
     }
@@ -327,8 +332,20 @@ export class AppComponent {
     }
     if ( this.selected_nodes.length == 2 ) {
       // @TODO: handle add edge
-      await new Promise(f => setTimeout(f, 500)); // tmp
-
+      if ( this.tool == Tool.ADDEDGE1 ){
+        let e = this.edges_1.length
+        this.addEdge(this.selected_nodes[0],this.selected_nodes[1], EdgeType.E )
+        this.focused_edge_1 = e
+        this.settings.show_curtain = true
+        this.settings.show_properties_window.edge_1 = true
+      }
+      else{ // if ( this.tool == Tool.ADDEDGE2 ){
+        let e = this.edges_2.length
+        this.addEdge(this.selected_nodes[0],this.selected_nodes[1], EdgeType.F )
+        this.focused_edge_2 = e
+        this.settings.show_curtain = true
+        this.settings.show_properties_window.edge_2 = true
+      }
       this.selected_nodes = []
     }
   }
@@ -340,7 +357,7 @@ export class AppComponent {
 
   setTool(t: Tool){
     this.tool = t
-    if ( this.tool != Tool.ADDEDGE ){
+    if ( this.tool != Tool.ADDEDGE1 && this.tool != Tool.ADDEDGE2 ){
       this.selected_nodes = []
     }
   }
@@ -361,7 +378,7 @@ export class AppComponent {
       else if ( x == 'node' ) return 'inherit'
       else if ( x == 'edge' ) return 'inherit'
     }
-    else if ( this.tool == Tool.ADDEDGE ){
+    else if ( this.tool == Tool.ADDEDGE1 || this.tool != Tool.ADDEDGE2 ){
       if ( x == 'canvas' ) return 'default'
       else if ( x == 'node' ) return 'pointer'
       else if ( x == 'edge' ) return 'default'
@@ -419,8 +436,10 @@ export class Node{
     width : 0
   } as PhysicalNodeProperties
 
-  constructor(n: number, d: number, badge ?: Badge){
+  constructor(n: number, d: number, x: number, y: number, badge ?: Badge){
     this.id =  n    
+    this.physical.x = x
+    this.physical.y = y
     this.physical.width = d
     this.physical.height = d
     if ( badge ){
@@ -463,11 +482,20 @@ export class Edge{
     v2_y : 0
   } as PhysicalEdgeProperties
 
-  constructor(n: number, start:number, end:number, type: EdgeType, badge?: Badge){
+  constructor(n: number, nodes : Node[], start:number, end:number, type: EdgeType, badge?: Badge){
     this.id =  n   
     this.start_node = start 
     this.end_node = end 
     this.type = type
+
+    this.physical.x = nodes[start].physical.x
+    this.physical.y = nodes[start].physical.y
+
+    let dx = nodes[start].physical.x - nodes[end].physical.x
+    let dy = nodes[start].physical.y - nodes[end].physical.y
+    
+    this.physical.width -= dx
+    this.physical.height -= dy
 
     if ( badge ){
       this.badge = badge
