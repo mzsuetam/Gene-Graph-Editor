@@ -45,10 +45,12 @@ export class AppComponent {
   edges_1 : Edge[] = [] as Edge[]
   edges_2 : Edge[] = [] as Edge[]
 
-  focused_node : number = 0; // for properties windows
-  focused_edge_1 : number = 0; // for properties windows
-  focused_edge_2 : number = 0; // for properties windows
+  focused_node : number = -1; // for properties windows
+  focused_edge_1 : number = -1; // for properties windows
+  focused_edge_2 : number = -1; // for properties windows
   selected_nodes : number[] = []
+
+  deletion_locked = true
 
   constructor(){
 
@@ -65,9 +67,8 @@ export class AppComponent {
   ngOnInit(){
     document.getElementById('canvas')!.addEventListener('click', (event) => {
       if ( this.tool == Tool.ADDNODE ){
-        let n = this.nodes.length
         this.addNode(this.mouse.x,this.mouse.y)
-        this.focused_node = n
+        this.focused_node = this.nodes[this.nodes.length-1].id
         this.settings.show_curtain = true
         this.settings.show_properties_window.node = true
       }
@@ -88,8 +89,20 @@ export class AppComponent {
     this.addEdge(2, 0, EdgeType.F, {text:"text", sub:"sub", sup:"sup"})
   }
 
+  public getNodeById(id: Number): Node{
+    return this.nodes.filter(obj => obj.id === id)[0]
+  }
+
+  public getEdge1ById(id: Number): Edge{
+    return this.edges_1.filter(obj => obj.id === id)[0]
+  }
+
+  public getEdge2ById(id: Number): Edge{
+    return this.edges_2.filter(obj => obj.id === id)[0]
+  }
+
   public async addNode(x:number, y:number, badge?: Badge){
-    let id = this.nodes.length
+    let id = this.nodes.length ?  this.nodes[this.nodes.length-1].id + 1 : 0
     let new_node = new Node(id, this.settings.physical.node_size, x,y, badge)
 
     this.nodes.push( new_node )
@@ -106,40 +119,40 @@ export class AppComponent {
             new_node.physical.y = this.mouse.y
 
             for( let i=0; i< new_node.edges_1_out.length; i++ ){
-              let dx = new_node.physical.x - this.edges_1[new_node.edges_1_out[i]].physical.x
-              let dy = new_node.physical.y - this.edges_1[new_node.edges_1_out[i]].physical.y
+              let dx = new_node.physical.x - this.getEdge1ById(new_node.edges_1_out[i]).physical.x
+              let dy = new_node.physical.y - this.getEdge1ById(new_node.edges_1_out[i]).physical.y
 
-              this.edges_1[new_node.edges_1_out[i]].physical.x = new_node.physical.x
-              this.edges_1[new_node.edges_1_out[i]].physical.y = new_node.physical.y
+              this.getEdge1ById(new_node.edges_1_out[i]).physical.x = new_node.physical.x
+              this.getEdge1ById(new_node.edges_1_out[i]).physical.y = new_node.physical.y
               
-              this.edges_1[new_node.edges_1_out[i]].physical.width -= dx
-              this.edges_1[new_node.edges_1_out[i]].physical.height -= dy
+              this.getEdge1ById(new_node.edges_1_out[i]).physical.width -= dx
+              this.getEdge1ById(new_node.edges_1_out[i]).physical.height -= dy
             }
             for( let i=0; i< new_node.edges_1_in.length; i++ ){
-              let dw = new_node.physical.x - this.edges_1[new_node.edges_1_in[i]].physical.x
-              let dh = new_node.physical.y - this.edges_1[new_node.edges_1_in[i]].physical.y
+              let dw = new_node.physical.x - this.getEdge1ById(new_node.edges_1_in[i]).physical.x
+              let dh = new_node.physical.y - this.getEdge1ById(new_node.edges_1_in[i]).physical.y
               
-              this.edges_1[new_node.edges_1_in[i]].physical.width = dw
-              this.edges_1[new_node.edges_1_in[i]].physical.height = dh
+              this.getEdge1ById(new_node.edges_1_in[i]).physical.width = dw
+              this.getEdge1ById(new_node.edges_1_in[i]).physical.height = dh
               
             }
 
             for( let i=0; i< new_node.edges_2_out.length; i++ ){
-              let dx = new_node.physical.x - this.edges_2[new_node.edges_2_out[i]].physical.x
-              let dy = new_node.physical.y - this.edges_2[new_node.edges_2_out[i]].physical.y
+              let dx = new_node.physical.x - this.getEdge2ById(new_node.edges_2_out[i]).physical.x
+              let dy = new_node.physical.y - this.getEdge2ById(new_node.edges_2_out[i]).physical.y
 
-              this.edges_2[new_node.edges_2_out[i]].physical.x = new_node.physical.x
-              this.edges_2[new_node.edges_2_out[i]].physical.y = new_node.physical.y
+              this.getEdge2ById(new_node.edges_2_out[i]).physical.x = new_node.physical.x
+              this.getEdge2ById(new_node.edges_2_out[i]).physical.y = new_node.physical.y
               
-              this.edges_2[new_node.edges_2_out[i]].physical.width -= dx
-              this.edges_2[new_node.edges_2_out[i]].physical.height -= dy
+              this.getEdge2ById(new_node.edges_2_out[i]).physical.width -= dx
+              this.getEdge2ById(new_node.edges_2_out[i]).physical.height -= dy
             }
             for( let i=0; i< new_node.edges_2_in.length; i++ ){
-              let dw = new_node.physical.x - this.edges_2[new_node.edges_2_in[i]].physical.x
-              let dh = new_node.physical.y - this.edges_2[new_node.edges_2_in[i]].physical.y
+              let dw = new_node.physical.x - this.getEdge2ById(new_node.edges_2_in[i]).physical.x
+              let dh = new_node.physical.y - this.getEdge2ById(new_node.edges_2_in[i]).physical.y
               
-              this.edges_2[new_node.edges_2_in[i]].physical.width = dw
-              this.edges_2[new_node.edges_2_in[i]].physical.height = dh
+              this.getEdge2ById(new_node.edges_2_in[i]).physical.width = dw
+              this.getEdge2ById(new_node.edges_2_in[i]).physical.height = dh
               
             }
           }
@@ -164,11 +177,11 @@ export class AppComponent {
   public async addEdge(start:number, end:number, type: EdgeType, badge?: Badge){
     // @FIXME: merge this if's
     if ( type == EdgeType.E ){
-      let id = this.edges_1.length
-      let new_edge = new Edge(id, this.nodes, start, end, type, badge)
+      let id = this.edges_1.length ? this.edges_1[this.edges_1.length-1].id + 1 : 0
+      let new_edge = new Edge(id, this, start, end, type, badge)
 
-      this.nodes[start].edges_1_out.push(id)
-      this.nodes[end].edges_1_in.push(id)
+      this.getNodeById(start).edges_1_out.push(id)
+      this.getNodeById(end).edges_1_in.push(id)
   
       this.edges_1.push( new_edge )
   
@@ -180,11 +193,11 @@ export class AppComponent {
             //<-- actions when we hold the button
             if ( this.settings.dragging_enabled ){
               if ( !this.isEdge1Flipped(id) ){
-                let x0 = this.nodes[new_edge.start_node].physical.x
-                let y0 = this.nodes[new_edge.start_node].physical.y
+                let x0 = this.getNodeById(new_edge.start_node).physical.x
+                let y0 = this.getNodeById(new_edge.start_node).physical.y
   
-                let dx = Math.abs( this.mouse.x - this.nodes[new_edge.end_node].physical.x )
-                let dy = Math.abs( this.mouse.y - this.nodes[new_edge.end_node].physical.y )
+                let dx = Math.abs( this.mouse.x - this.getNodeById(new_edge.end_node).physical.x )
+                let dy = Math.abs( this.mouse.y - this.getNodeById(new_edge.end_node).physical.y )
                 let c = Math.sqrt( dx*dx + dy*dy )
   
                 new_edge.physical.v1_x = this.mouse.x - x0
@@ -194,11 +207,11 @@ export class AppComponent {
                 new_edge.physical.v2_y = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? this.mouse.y - y0 :  new_edge.physical.v2_y
               }
               else{
-                let x0 = this.nodes[new_edge.start_node].physical.x + new_edge.physical.width
-                let y0 = this.nodes[new_edge.start_node].physical.y + new_edge.physical.height
+                let x0 = this.getNodeById(new_edge.start_node).physical.x + new_edge.physical.width
+                let y0 = this.getNodeById(new_edge.start_node).physical.y + new_edge.physical.height
   
-                let dx = Math.abs( this.mouse.x - this.nodes[new_edge.end_node].physical.x )
-                let dy = Math.abs( this.mouse.y - this.nodes[new_edge.end_node].physical.y )
+                let dx = Math.abs( this.mouse.x - this.getNodeById(new_edge.end_node).physical.x )
+                let dy = Math.abs( this.mouse.y - this.getNodeById(new_edge.end_node).physical.y )
                 let c = Math.sqrt( dx*dx + dy*dy )
                 
                 new_edge.physical.v1_x = x0 - this.mouse.x
@@ -227,10 +240,10 @@ export class AppComponent {
 
     }
     else if ( type == EdgeType.F){
-      let id = this.edges_2.length
-      let new_edge = new Edge(id, this.nodes, start, end, type, badge)
-      this.nodes[start].edges_2_out.push(id)
-      this.nodes[end].edges_2_in.push(id)
+      let id = this.edges_2.length ? this.edges_2[this.edges_2.length-1].id + 1 : 0
+      let new_edge = new Edge(id, this, start, end, type, badge)
+      this.getNodeById(start).edges_2_out.push(id)
+      this.getNodeById(end).edges_2_in.push(id)
   
       this.edges_2.push( new_edge )
   
@@ -242,11 +255,11 @@ export class AppComponent {
             //<-- actions when we hold the button
             if ( this.settings.dragging_enabled ){
               if ( !this.isEdge2Flipped(id) ){
-                let x0 = this.nodes[new_edge.start_node].physical.x
-                let y0 = this.nodes[new_edge.start_node].physical.y
+                let x0 = this.getNodeById(new_edge.start_node).physical.x
+                let y0 = this.getNodeById(new_edge.start_node).physical.y
   
-                let dx = Math.abs( this.mouse.x - this.nodes[new_edge.end_node].physical.x )
-                let dy = Math.abs( this.mouse.y - this.nodes[new_edge.end_node].physical.y )
+                let dx = Math.abs( this.mouse.x - this.getNodeById(new_edge.end_node).physical.x )
+                let dy = Math.abs( this.mouse.y - this.getNodeById(new_edge.end_node).physical.y )
                 let c = Math.sqrt( dx*dx + dy*dy )
   
                 new_edge.physical.v1_x = this.mouse.x - x0
@@ -256,11 +269,11 @@ export class AppComponent {
                 new_edge.physical.v2_y = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? this.mouse.y - y0 :  new_edge.physical.v2_y
               }
               else{
-                let x0 = this.nodes[new_edge.start_node].physical.x + new_edge.physical.width
-                let y0 = this.nodes[new_edge.start_node].physical.y + new_edge.physical.height
+                let x0 = this.getNodeById(new_edge.start_node).physical.x + new_edge.physical.width
+                let y0 = this.getNodeById(new_edge.start_node).physical.y + new_edge.physical.height
   
-                let dx = Math.abs( this.mouse.x - this.nodes[new_edge.end_node].physical.x )
-                let dy = Math.abs( this.mouse.y - this.nodes[new_edge.end_node].physical.y )
+                let dx = Math.abs( this.mouse.x - this.getNodeById(new_edge.end_node).physical.x )
+                let dy = Math.abs( this.mouse.y - this.getNodeById(new_edge.end_node).physical.y )
                 let c = Math.sqrt( dx*dx + dy*dy )
                 
                 new_edge.physical.v1_x = x0 - this.mouse.x
@@ -290,33 +303,77 @@ export class AppComponent {
 
   }
 
+  deleteNode( id:number ){
+    let n = this.getNodeById(id)
+
+    for (let e of n.edges_1_in ){
+      this.deleteEdge1(e)
+    }
+    for (let e of n.edges_1_out ){
+      this.deleteEdge1(e)
+    }
+    for (let e of n.edges_2_in ){
+      this.deleteEdge2(e)
+    }
+    for (let e of n.edges_2_out ){
+      this.deleteEdge2(e)
+    }
+
+    this.focused_node = -1
+    this.nodes = this.nodes.filter( obj => obj.id !== id )
+  }
+
+  deleteEdge1( id:number ){
+    let e = this.getEdge1ById(id)
+    let start_node = this.getNodeById(e.start_node)
+    let end_node = this.getNodeById(e.end_node)
+    
+    start_node.edges_1_out = start_node.edges_1_out.filter( obj => obj !== id )
+    end_node.edges_1_in = end_node.edges_1_in.filter( obj => obj !== id )
+
+    this.focused_edge_1 = -1
+    this.edges_1 = this.edges_1.filter( obj => obj.id !== id )
+  }
+
+  deleteEdge2( id:number ){
+    let e = this.getEdge2ById(id)
+    let start_node = this.getNodeById(e.start_node)
+    let end_node = this.getNodeById(e.end_node)
+    
+    start_node.edges_2_out = start_node.edges_2_out.filter( obj => obj !== id )
+    end_node.edges_2_in = end_node.edges_2_in.filter( obj => obj !== id )
+
+    this.focused_edge_2 = -1
+    this.edges_2 = this.edges_2.filter( obj => obj.id !== id )
+  }
+
   isEdge1Flipped(e : number) : boolean{
-    let edge = this.edges_1[e]
-    let x1 = this.nodes[edge  .start_node].physical.x
-    let x2 = this.nodes[edge.end_node].physical.x
+    let edge = this.getEdge1ById(e)
+    let x1 = this.getNodeById(edge  .start_node).physical.x
+    let x2 = this.getNodeById(edge.end_node).physical.x
     return x1 > x2
   }
 
   isEdge2Flipped(e : number) : boolean{
-    let edge = this.edges_2[e]
-    let x1 = this.nodes[edge.start_node].physical.x
-    let x2 = this.nodes[edge.end_node].physical.x
+    let edge = this.getEdge2ById(e)
+    let x1 = this.getNodeById(edge.start_node).physical.x
+    let x2 = this.getNodeById(edge.end_node).physical.x
     return x1 > x2
   }
 
   isEdge1LongEnough(e :number) : boolean{
-    let edge = this.edges_1[e]
-    let dx = Math.abs( this.nodes[edge.start_node].physical.x - this.nodes[edge.end_node].physical.x )
-    let dy = Math.abs( this.nodes[edge.start_node].physical.y - this.nodes[edge.end_node].physical.y )
+    let edge = this.getEdge1ById(e)
+    let dx = Math.abs( this.getNodeById(edge.start_node).physical.x - this.getNodeById(edge.end_node).physical.x )
+    let dy = Math.abs( this.getNodeById(edge.start_node).physical.y - this.getNodeById(edge.end_node).physical.y )
     let c = Math.sqrt( dx*dx + dy*dy )
 
     return c > this.settings.physical.node_size 
   }
 
   isEdge2LongEnough(e :number) : boolean{
-    let edge = this.edges_2[e]
-    let dx = Math.abs( this.nodes[edge.start_node].physical.x - this.nodes[edge.end_node].physical.x )
-    let dy = Math.abs( this.nodes[edge.start_node].physical.y - this.nodes[edge.end_node].physical.y )
+    let edge = this.getEdge2ById(e)
+    let dx = Math.abs( this.getNodeById(edge.start_node).physical.x - this.getNodeById(edge.end_node).physical.x )
+    let dy = Math.abs( this.getNodeById(edge.start_node).physical.y - this.getNodeById(edge.end_node).physical.y )
     let c = Math.sqrt( dx*dx + dy*dy )
 
     return c > this.settings.physical.node_size 
@@ -333,14 +390,14 @@ export class AppComponent {
     if ( this.selected_nodes.length == 2 ) {
       // @TODO: handle add edge
       if ( this.tool == Tool.ADDEDGE1 ){
-        let e = this.edges_1.length
+        let e = this.edges_1.length ? this.edges_1[this.edges_1.length - 1].id + 1 : 0
         this.addEdge(this.selected_nodes[0],this.selected_nodes[1], EdgeType.E )
         this.focused_edge_1 = e
         this.settings.show_curtain = true
         this.settings.show_properties_window.edge_1 = true
       }
       else{ // if ( this.tool == Tool.ADDEDGE2 ){
-        let e = this.edges_2.length
+        let e = this.edges_2.length ? this.edges_1[this.edges_2.length - 1].id + 1 : 0
         this.addEdge(this.selected_nodes[0],this.selected_nodes[1], EdgeType.F )
         this.focused_edge_2 = e
         this.settings.show_curtain = true
@@ -391,6 +448,7 @@ export class AppComponent {
     this.settings.show_properties_window.node = false
     this.settings.show_properties_window.edge_1 = false
     this.settings.show_properties_window.edge_2 = false
+    this.deletion_locked = true
   }
 
   getEdgeTag(x:number): string{
@@ -406,6 +464,25 @@ export class AppComponent {
 
   getInputValueAsNumber(event : Event) : number {
     return (event.target as HTMLInputElement).value as unknown as number;
+  }
+
+  proceedDeletion(element_type: string){
+    if ( this.deletion_locked ){
+      this.deletion_locked = false
+      return 
+    }
+
+    // if ( this.deletion_locked == false ) { ...
+    if ( element_type == 'node'){
+      this.deleteNode(this.focused_node)
+    }
+    else if ( element_type == "edge_1" ){
+      this.deleteEdge1(this.focused_edge_1)
+    }
+    else if ( element_type == "edge_2" ){
+      this.deleteEdge2(this.focused_edge_2)
+    }
+    this.closeCurtainAndPropertiesWindows()
   }
 }
 
@@ -482,17 +559,17 @@ export class Edge{
     v2_y : 0
   } as PhysicalEdgeProperties
 
-  constructor(n: number, nodes : Node[], start:number, end:number, type: EdgeType, badge?: Badge){
+  constructor(n: number, parent : AppComponent, start:number, end:number, type: EdgeType, badge?: Badge){
     this.id =  n   
     this.start_node = start 
     this.end_node = end 
     this.type = type
 
-    this.physical.x = nodes[start].physical.x
-    this.physical.y = nodes[start].physical.y
+    this.physical.x = parent.getNodeById(start).physical.x
+    this.physical.y = parent.getNodeById(start).physical.y
 
-    let dx = nodes[start].physical.x - nodes[end].physical.x
-    let dy = nodes[start].physical.y - nodes[end].physical.y
+    let dx = parent.getNodeById(start).physical.x - parent.getNodeById(end).physical.x
+    let dy = parent.getNodeById(start).physical.y - parent.getNodeById(end).physical.y
     
     this.physical.width -= dx
     this.physical.height -= dy

@@ -184,6 +184,7 @@
 	border-radius: 10px 10px 0 0;	
 	
 }
+
 .properties-top-bar button{
 	position: absolute;
 	top: 10px;
@@ -196,7 +197,8 @@
 	color: #003D5B;
 }
 
-.properties-window p{
+.pw-element{
+	height: 25px;
 	padding: 5px 10px;
 	margin: 0 0 10px 0;
 	border-radius: 10px;
@@ -205,7 +207,17 @@
 	font-weight: bold;
 }
 
-.properties-window input{
+.pw-element.delete{
+	width: calc(100% - 40px);
+	position: absolute;
+	bottom: 0;
+	text-align: center;
+	cursor: pointer;
+	background-color: red;
+}
+
+.pw-input{
+	height: 25px;
 	margin: 0 ;
 	border-radius: 10px;	
 	border: 0;
@@ -227,27 +239,12 @@
 	transform: translateY(-5px);
 }
 
-.properties-window-disabled-input{
-	margin: 0 ;
-	border-radius: 10px;	
-	border: 0;
-	padding: 5px;
+.pw-input.disabled{
+	height: 30px;
 	background: lightgrey;
-	width: calc(60% - 10px);
 	color: black;
 	
-	border: none;
 	padding: 2.5px 5px;
-	font: inherit;
-	outline: inherit;
-	font-weight: normal;
-
-	-webkit-box-shadow: inset 0 0 2px black;
-    -moz-box-shadow: inset 0 0 2px black;
-    box-shadow: inset 0 0 2px black;
-
-	float: right;
-	transform: translateY(-5px);
 }
 
 .properties-window-sep{

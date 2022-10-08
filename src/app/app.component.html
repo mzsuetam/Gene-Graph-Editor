@@ -85,28 +85,31 @@
 		<span>Node properties</span>
 		<button (click)="closeCurtainAndPropertiesWindows()">X</button>
 	</div>
-	<p>
-		Badge main text: <input type="text" [value]="nodes[focused_node].badge.text" 
-			(input)="nodes[focused_node].badge.text = getInputValueAsString($event)">
+	<p class="pw-element">
+		Badge main text: <input class="pw-input" type="text" [value]="focused_node != -1 ? getNodeById(focused_node).badge.text : ' '" 
+			(input)="focused_node != -1 ? getNodeById(focused_node).badge.text = getInputValueAsString($event) : ' '">
 	</p>
-	<p>
-		Badge sup text: <input type="text" [value]="nodes[focused_node].badge.sup" 
-			(input)="nodes[focused_node].badge.sup = getInputValueAsString($event)">
+	<p class="pw-element">
+		Badge sup text: <input class="pw-input" type="text" [value]="focused_node != -1 ? getNodeById(focused_node).badge.sup : ' '" 
+			(input)="focused_node != -1 ? getNodeById(focused_node).badge.sup = getInputValueAsString($event) : ' '">
 	</p>
-	<p>
-		Badge sub text: <input type="text" [value]="nodes[focused_node].badge.sub" 
-			(input)="nodes[focused_node].badge.sub = getInputValueAsString($event)">
+	<p class="pw-element">
+		Badge sub text: <input class="pw-input" type="text" [value]="focused_node != -1 ? getNodeById(focused_node).badge.sub : ' '" 
+			(input)="focused_node != -1 ? getNodeById(focused_node).badge.sub = getInputValueAsString($event) : ' '">
 	</p>
-	<div class="properties-window-sep"></div>
-	<p title="You cannot change this property in properties panel">
-		Coord X: <span class="properties-window-disabled-input">{{nodes[focused_node].physical.x}}
+	<div class="pw-sep"></div>
+	<p class="pw-element" title="You cannot change this property in properties panel">
+		Coord X: <span class="pw-input disabled">{{focused_node != -1 ? getNodeById(focused_node).physical.x : ' '}}
 			<sub></sub><sup></sup>
 		</span>
 	</p>
-	<p title="You cannot change this property in properties panel">
-		Coord Y: <span class="properties-window-disabled-input">{{nodes[focused_node].physical.y}}
+	<p class="pw-element" title="You cannot change this property in properties panel">
+		Coord Y: <span class="pw-input disabled">{{focused_node != -1 ? getNodeById(focused_node).physical.y : ' '}}
 			<sub></sub><sup></sup>
 		</span>
+	</p>
+	<p class="pw-element delete" (click)="proceedDeletion('node')">
+		{{ deletion_locked ? "Delete" : "Are you sure?" }}
 	</p>
 </div>
 <div class="properties-window" [ngClass]="{ show : settings.show_properties_window.edge_1 }">
@@ -115,27 +118,30 @@
 		<span>Edge {{getEdgeTag(1)}} properties</span>
 		<button  (click)="closeCurtainAndPropertiesWindows()">X</button>
 	</div>
-	<p>
-		Badge main text: <input type="text" [value]="edges_1[focused_edge_1].badge.text" 
-			(input)="edges_1[focused_edge_1].badge.text = getInputValueAsString($event)">
+	<p class="pw-element">
+		Badge main text: <input class="pw-input" type="text" [value]="focused_edge_1 !== -1 ? getEdge1ById(focused_edge_1).badge.text : ' '" 
+			(input)="focused_edge_1 !== -1 ? getEdge1ById(focused_edge_1).badge.text = getInputValueAsString($event) : ' '">
 	</p>
-	<p>
-		Badge sup text: <input type="text" [value]="edges_1[focused_edge_1].badge.sup" 
-			(input)="edges_1[focused_edge_1].badge.sup = getInputValueAsString($event)">
+	<p class="pw-element">
+		Badge sup text: <input class="pw-input" type="text" [value]="focused_edge_1 !== -1 ? getEdge1ById(focused_edge_1).badge.sup : ' '" 
+			(input)="focused_edge_1 !== -1 ? getEdge1ById(focused_edge_1).badge.sup = getInputValueAsString($event) : ' '">
 	</p>
-	<p>
-		Badge sub text: <input type="text" [value]="edges_1[focused_edge_1].badge.sub" 
-			(input)="edges_1[focused_edge_1].badge.sub = getInputValueAsString($event)">
+	<p class="pw-element">
+		Badge sub text: <input class="pw-input" type="text" [value]="focused_edge_1 !== -1 ? getEdge1ById(focused_edge_1).badge.sub : ' '" 
+			(input)="focused_edge_1 !== -1 ? getEdge1ById(focused_edge_1).badge.sub = getInputValueAsString($event) : ' '">
 	</p>
-	<div class="properties-window-sep"></div>
-	<p title="You cannot change this property in properties panel">
-		Start node: <span class="properties-window-disabled-input">
-			{{nodes[edges_1[focused_edge_1].start_node].badge.text}}<sub>{{nodes[edges_1[focused_edge_1].start_node].badge.sub}}</sub><sup>{{nodes[edges_1[focused_edge_1].start_node].badge.sup}}</sup>
+	<div class="pw-sep"></div>
+	<p class="pw-element" title="You cannot change this property in properties panel">
+		Start node: <span class="pw-input disabled">
+			{{focused_edge_1 !== -1 ? getNodeById(getEdge1ById(focused_edge_1).start_node).badge.text : ' '}}<sub>{{focused_edge_1 !== -1 ? getNodeById(getEdge1ById(focused_edge_1).start_node).badge.sub : ' '}}</sub><sup>{{focused_edge_1 !== -1 ? getNodeById(getEdge1ById(focused_edge_1).start_node).badge.sup : ' '}}</sup>
 		</span>
 	</p>
-	<p title="You cannot change this property in properties panel">
-		End node: <span class="properties-window-disabled-input">{{nodes[edges_1[focused_edge_1].end_node].badge.text}}<sub>{{nodes[edges_1[focused_edge_1].end_node].badge.sub}}</sub><sup>{{nodes[edges_1[focused_edge_1].end_node].badge.sup}}</sup>
+	<p class="pw-element" title="You cannot change this property in properties panel">
+		End node: <span class="pw-input disabled">{{focused_edge_1 !== -1 ? getNodeById(getEdge1ById(focused_edge_1).end_node).badge.text : ' '}}<sub>{{focused_edge_1 !== -1 ? getNodeById(getEdge1ById(focused_edge_1).end_node).badge.sub : ' '}}</sub><sup>{{focused_edge_1 !== -1 ? getNodeById(getEdge1ById(focused_edge_1).end_node).badge.sup : ' '}}</sup>
 		</span> 
+	</p>
+	<p class="pw-element delete" (click)="proceedDeletion('edge_1')">
+		{{ deletion_locked ? "Delete" : "Are you sure?" }}
 	</p>
 </div>
 <div class="properties-window" [ngClass]="{ show : settings.show_properties_window.edge_2 }">
@@ -144,25 +150,33 @@
 		<span>Edge {{getEdgeTag(2)}} properties</span>
 		<button  (click)="closeCurtainAndPropertiesWindows()">X</button>
 	</div>
-	<p>
-		Badge main text: <input type="text" [value]="edges_2[focused_edge_2].badge.text" 
-			(input)="edges_2[focused_edge_2].badge.text = getInputValueAsString($event)">
+	<p class="pw-element">
+		Badge main text: <input class="pw-input" type="text" [value]="focused_edge_2 !== -1 ? getEdge2ById(focused_edge_2).badge.text : ' '" 
+			(input)="focused_edge_2 !== -1 ? getEdge2ById(focused_edge_2).badge.text = getInputValueAsString($event) : ' '">
 	</p>
-	<p>
-		Badge sup text: <input type="text" [value]="edges_2[focused_edge_2].badge.sup" 
-			(input)="edges_2[focused_edge_2].badge.sup = getInputValueAsString($event)">
+	<p class="pw-element">
+		Badge sup text: <input class="pw-input" type="text" [value]="focused_edge_2 !== -1 ? getEdge2ById(focused_edge_2).badge.sup : ' '" 
+			(input)="focused_edge_2 !== -1 ? getEdge2ById(focused_edge_2).badge.sup = getInputValueAsString($event) : ' '">
 	</p>
-	<p>
-		Badge sub text: <input type="text" [value]="edges_2[focused_edge_2].badge.sub" 
-			(input)="edges_2[focused_edge_2].badge.sub = getInputValueAsString($event)">
+	<p class="pw-element">
+		Badge sub text: <input class="pw-input" type="text" [value]="focused_edge_2 !== -1 ? getEdge2ById(focused_edge_2).badge.sub : ' '" 
+			(input)="focused_edge_2 !== -1 ? getEdge2ById(focused_edge_2).badge.sub = getInputValueAsString($event) : ' '">
 	</p>
-	<div class="properties-window-sep"></div>
-	<p title="You cannot change this property in properties panel">
-		Start node: <span class="properties-window-disabled-input">{{nodes[edges_2[focused_edge_2].start_node].badge.text}}<sub>{{nodes[edges_2[focused_edge_2].start_node].badge.sub}}</sub><sup>{{nodes[edges_2[focused_edge_2].start_node].badge.sup}}</sup>
+	<div class="pw-sep"></div>
+	<p class="pw-element" title="You cannot change this property in properties panel">
+		Start node: <span class="pw-input disabled">{{focused_edge_2 !== -1 ? getNodeById(getEdge2ById(focused_edge_2).start_node).badge.text : ' '}}<sub>{{focused_edge_2 !== -1 ? getNodeById(getEdge2ById(focused_edge_2).start_node).badge.sub : ' '}}</sub><sup>{{focused_edge_2 !== -1 ? getNodeById(getEdge2ById(focused_edge_2).start_node).badge.sup : ' '}}</sup>
 		</span>
 	</p>
-	<p title="You cannot change this property in properties panel">
-		End node: <span class="properties-window-disabled-input">{{nodes[edges_2[focused_edge_2].end_node].badge.text}}<sub>{{nodes[edges_2[focused_edge_2].end_node].badge.sub}}</sub><sup>{{nodes[edges_2[focused_edge_2].end_node].badge.sup}}</sup>
+	<p class="pw-element" title="You cannot change this property in properties panel">
+		End node: <span class="pw-input disabled">{{focused_edge_2 !== -1 ? getNodeById(getEdge2ById(focused_edge_2).end_node).badge.text : ' '}}<sub>{{focused_edge_2 !== -1 ? getNodeById(getEdge2ById(focused_edge_2).end_node).badge.sub : ' '}}</sub><sup>{{focused_edge_2 !== -1 ? getNodeById(getEdge2ById(focused_edge_2).end_node).badge.sup : ' '}}</sup>
 		</span> 
 	</p>
+	<p class="pw-element delete" (click)="proceedDeletion('edge_2')">
+		{{ deletion_locked ? "Delete" : "Are you sure?" }}
+	</p>
 </div>
+
+<!-- @FIXME: 
+	- move canvas content to relative => implement camera moving & maybe zoom
+	- edges positon sometimes goes brr
+ -->
