@@ -10,10 +10,23 @@
 
 <!-- SECTION OF CANVAS -->
 <div id="canvas" [style.cursor]="getCursorStyle('canvas')">
+	<div id="cs-y-axis" [attr.style]="'left:'+settings.physical.coord_sys.x_offset+'px;'" ></div>
+	<div id="cs-x-axis" [attr.style]="'top:'+settings.physical.coord_sys.y_offset+'px;'" ></div>
+	<div *ngFor="let i of getCsAxisGrad(0)" class="cs-x-axis-grad"	[attr.style]="'width:'+settings.physical.coord_sys.grad_size+'px;'
+	+'top:'+(settings.physical.coord_sys.y_offset%settings.physical.coord_sys.grad_factor+i*settings.physical.coord_sys.grad_factor)+'px;'
+	+'left:'+settings.physical.coord_sys.x_offset+'px;'" ></div>
+	<div *ngFor="let i of getCsAxisGrad(1)" class="cs-y-axis-grad"	[attr.style]="'height:'+settings.physical.coord_sys.grad_size+'px;'
+	+'left:'+(settings.physical.coord_sys.x_offset%settings.physical.coord_sys.grad_factor+i*settings.physical.coord_sys.grad_factor)+'px;'
+	+'top:'+settings.physical.coord_sys.y_offset+'px;'" ></div>
+	<div id="cs-badge" (click)="resetOffset()" title="Press to reset">
+		<p>
+			X: {{getOffsetForPrint(0)}} Y: {{getOffsetForPrint(1)}}
+		</p>
+	</div>
 	<!-- EDGES 1 -->
 	<svg *ngFor="let e of edges_1" id="edge-1-{{e.id}}" [class]="'edge edge-type-1'" [attr.height]="e.physical.height" [attr.width]="e.physical.width"
-		[style.left.px]="!isEdge1Flipped(e.id) ? e.physical.x : e.physical.x" 
-		[style.top.px]="!isEdge1Flipped(e.id) ? e.physical.y : e.physical.y">
+		[style.left.px]="this.settings.physical.coord_sys.x_offset +  e.physical.x" 
+		[style.top.px]="this.settings.physical.coord_sys.y_offset +  e.physical.y">
 		<defs>
 			<marker id="triangle-1-right" viewBox="2 0 10 10" refX="22" refY="5" markerWidth="5" markerHeight="5" orient="auto">
 				<path d="M 0 0 L 10 5 L 0 10 z" [class]="'edge-type-1'" stroke-width="2"/>
@@ -39,8 +52,8 @@
 	</svg>
 	<!-- EDGES 2 -->
 	<svg *ngFor="let e of edges_2" id="edge-2-{{e.id}}" [class]="'edge edge-type-2'" [attr.height]="e.physical.height" [attr.width]="e.physical.width"
-		[style.left.px]="!isEdge2Flipped(e.id) ? e.physical.x : e.physical.x" 
-		[style.top.px]="!isEdge2Flipped(e.id) ? e.physical.y : e.physical.y">
+		[style.left.px]="this.settings.physical.coord_sys.x_offset +  e.physical.x" 
+		[style.top.px]="this.settings.physical.coord_sys.y_offset +  e.physical.y">
 		<defs>
 			<marker id="triangle-2-right" viewBox="2 0 10 10" refX="22" refY="5" markerWidth="5" markerHeight="5" orient="auto">
 				<path d="M 0 0 L 10 5 L 0 10 z" [class]="'edge-type-2'" stroke-width="2"/>
@@ -67,7 +80,8 @@
 	<!-- NODES -->
 	<div *ngFor="let n of nodes" id="node-{{n.id}}" class="node" [ngClass]="{selected : isSelected(n.id)}" (click)="flipSelection(n.id)"
 		[style.width.px]="n.physical.width" [style.height.px]="n.physical.height"
-		[style.left.px]="n.physical.x - n.physical.height/2"  [style.top.px]="n.physical.y - n.physical.height/2"
+		[style.left.px]="this.settings.physical.coord_sys.x_offset + n.physical.x - n.physical.width/2" 
+		[style.top.px]="this.settings.physical.coord_sys.y_offset + n.physical.y - n.physical.height/2"
 		[style.cursor]="getCursorStyle('node')">
 		<p><span>{{n.badge.text}}</span>
 			<sub>{{n.badge.sub}}</sub>

@@ -54,6 +54,59 @@
 	background-color:#0c1821;
 	width: 100vw;
 	height: calc(100vh - 50px);
+	position: absolute;
+	top: 50px;
+	overflow: hidden;
+}
+
+/* COORDINATE SYSTEM SECTION */
+
+#cs-y-axis{
+	background: #070f14;
+	height: 100%;
+	width: 5px;	
+
+	position: absolute;
+	top: 0;
+	transform: translateX(-50%);
+}
+
+.cs-x-axis-grad{
+	background: #070f14;
+	height: 5px;	
+
+	position: absolute;
+	transform: translate(-50%,-50%);
+}
+
+.cs-y-axis-grad{
+	background: #070f14;
+	width: 5px;	
+
+	position: absolute;
+	transform: translate(-50%,-50%);
+}
+
+#cs-x-axis{
+	background: #070f14;
+	height: 5px;
+	width: 100%;
+
+	position: absolute;
+	left: 0;
+	transform: translateY(-50%);
+}
+
+#cs-badge{
+	position: absolute;
+	z-index: 2;
+	bottom: 0;
+
+	background: #070f14;
+	color: white;
+	padding: 10px;
+	
+	cursor: pointer;
 }
 
 /* NODE SECTION */
