@@ -10,17 +10,19 @@
 
 <!-- SECTION OF CANVAS -->
 <div id="canvas" [style.cursor]="getCursorStyle('canvas')">
-	<div id="cs-y-axis" [attr.style]="'left:'+settings.physical.coord_sys.x_offset+'px;'" ></div>
-	<div id="cs-x-axis" [attr.style]="'top:'+settings.physical.coord_sys.y_offset+'px;'" ></div>
+	<div id="cs-x-axis" [attr.style]="getCsAxisPosition(0)" ></div>
+	<div id="cs-y-axis" [attr.style]="getCsAxisPosition(1)" ></div>
 	<div *ngFor="let i of getCsAxisGrad(0)" class="cs-x-axis-grad"	[attr.style]="'width:'+settings.physical.coord_sys.grad_size+'px;'
 	+'top:'+(settings.physical.coord_sys.y_offset%settings.physical.coord_sys.grad_factor+i*settings.physical.coord_sys.grad_factor)+'px;'
-	+'left:'+settings.physical.coord_sys.x_offset+'px;'" ></div>
+	+getCsAxisPosition(1, true)" ><p [attr.style]="getCsAxisGradLabelPosition(0)">{{getCsAxisGradLabelValue(1,i)}}</p></div>
 	<div *ngFor="let i of getCsAxisGrad(1)" class="cs-y-axis-grad"	[attr.style]="'height:'+settings.physical.coord_sys.grad_size+'px;'
 	+'left:'+(settings.physical.coord_sys.x_offset%settings.physical.coord_sys.grad_factor+i*settings.physical.coord_sys.grad_factor)+'px;'
-	+'top:'+settings.physical.coord_sys.y_offset+'px;'" ></div>
+	+getCsAxisPosition(0, true)" ><p [attr.style]="getCsAxisGradLabelPosition(1)">{{getCsAxisGradLabelValue(0,i)}}</p></div>
+	<div class="cs-x-axis-grad centerer" [attr.style]="'width:'+settings.physical.coord_sys.grad_size+'px;'"></div>
+	<div class="cs-y-axis-grad centerer" [attr.style]="'height:'+settings.physical.coord_sys.grad_size+'px;'"></div>
 	<div id="cs-badge" (click)="resetOffset()" title="Press to reset">
 		<p>
-			X: {{getOffsetForPrint(0)}} Y: {{getOffsetForPrint(1)}}
+			Looking at ({{getOffsetForPrint(0)}}, {{getOffsetForPrint(1)}})
 		</p>
 	</div>
 	<!-- EDGES 1 -->

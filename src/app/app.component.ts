@@ -122,6 +122,7 @@ export class AppComponent {
     
     this.addEdge(3, 2, EdgeType.F)
     this.addEdge(3, 0, EdgeType.F)
+    this.addEdge(1, 2, EdgeType.F)
     this.addEdge(2, 0, EdgeType.F, {text:"text", sub:"sub", sup:"sup"})
   }
 
@@ -527,12 +528,12 @@ export class AppComponent {
     this.closeCurtainAndPropertiesWindows()
   }
 
-  getOffsetForPrint(axis: number){
+  getOffsetForPrint(axis: number):number{
     if ( axis == 0 ){
-      return this.settings.physical.coord_sys.x_offset - document.getElementById('canvas')!.offsetWidth/2
+      return - this.settings.physical.coord_sys.x_offset + document.getElementById('canvas')!.offsetWidth/2
     }
     else{ // if ( axis == 1 ) { ...
-      return this.settings.physical.coord_sys.y_offset - document.getElementById('canvas')!.offsetHeight/2
+      return - this.settings.physical.coord_sys.y_offset + document.getElementById('canvas')!.offsetHeight/2
     }
   }
 
@@ -543,7 +544,7 @@ export class AppComponent {
 
   getCsAxisGrad(axis: number){
     let tab = [] as number[]
-    let max=0
+    let max = 0
     if ( axis == 0 ){
       max = document.getElementById('canvas')!.offsetHeight / this.settings.physical.coord_sys.grad_factor + 1
     }
@@ -554,6 +555,68 @@ export class AppComponent {
       tab.push(i)
     }
     return tab
+  }
+
+  getCsAxisPosition(axis:number, grid:boolean = false) : string{
+    let max_width = document.getElementById('canvas')!.offsetWidth
+    let max_height = document.getElementById('canvas')!.offsetHeight
+    if ( axis == 0 ){
+      let y_off = this.settings.physical.coord_sys.y_offset
+      if ( y_off < 5){
+        return 'top: 10px;'
+      }
+      if ( y_off > max_height - 5 ){
+        if ( grid ) return 'bottom: '+ ( 5 - this.settings.physical.coord_sys.grad_size ) + 'px;'
+        return 'bottom: 5px;'
+      }
+      return 'top:'+y_off+'px;'
+    }
+    if ( axis == 1 ){
+      let x_off = this.settings.physical.coord_sys.x_offset
+      if ( x_off < 5){
+        return 'left: 10px;'
+      }
+      if ( x_off > max_width -5 ){
+        if ( grid ) return 'right: '+ ( 5 - this.settings.physical.coord_sys.grad_size )  + 'px;'
+        return 'right: 5px;'
+      }
+      return 'left:'+x_off+'px;'
+    }
+    return ""
+  }
+
+  getCsAxisGradLabelPosition(axis:number){
+    let max_width = document.getElementById('canvas')!.offsetWidth
+    let max_height = document.getElementById('canvas')!.offsetHeight
+    if ( axis == 0 ){
+      let x_off = this.settings.physical.coord_sys.x_offset
+      if ( x_off > max_width - 50 ){
+        return 'transform: translate(calc( -15px - 100%),-40%);'
+      }
+      return 'transform: translate(35px, -40%);'
+    }
+    if ( axis == 1 ){
+      let y_off = this.settings.physical.coord_sys.y_offset
+      if ( y_off > max_height - 5 ){
+        return 'transform: translate(10px, -70%);'
+      }
+      return 'transform: translate(10px, 100%);'
+    }
+    return ""
+  }
+  
+  getCsAxisGradLabelValue(axis:number, i:number) : string{
+    if ( axis == 0 ){
+      let grad_factor : number = this.settings.physical.coord_sys.grad_factor
+      let dx : number = Math.floor( this.settings.physical.coord_sys.x_offset /grad_factor )
+      return ( (dx-i)*(-100) ).toString()
+    }
+    if ( axis == 1 ){
+      let grad_factor : number = this.settings.physical.coord_sys.grad_factor
+      let dy : number = Math.floor( this.settings.physical.coord_sys.y_offset /grad_factor )
+      return ( (dy-i)*(-100) ).toString()
+    }
+    return ""
   }
 }
 
@@ -652,6 +715,8 @@ export class Edge{
     this.physical.width -= dx
     this.physical.height -= dy
 
+    this.setVSimple(50)
+
     if ( badge ){
       this.badge = badge
     }
@@ -671,6 +736,26 @@ export class Edge{
       } as Badge
       this.badge = b
     }
+  }
+
+  private setVSimple(dh: number){
+    // let x1 = this.physical.x
+    // let x2 = this.physical.x+this.physical.width
+    // let y1 = this.physical.y
+    // let y2 = this.physical.y+this.physical.height
+
+    // if ( x1 == x2 ){
+    //   let xc = x1
+    //   let yc = (y1+y2)/2
+
+    //   let xs = x1+dh
+    //   let ys = yc
+
+    //   this.physical.v1_x = this.physical.v2_x = xs
+    //   this.physical.v1_y = this.physical.v2_y = ys
+    // }
+
+    // console.log( x1 + ' ' + y2 + ' | ' + x2 + ' ' + y2 + ' | ' + this.physical.v1_x  + ' ' + this.physical.v1_y  )
   }
   
 }

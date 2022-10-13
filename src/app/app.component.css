@@ -65,7 +65,7 @@
 	background: #070f14;
 	height: 100%;
 	width: 5px;	
-
+	
 	position: absolute;
 	top: 0;
 	transform: translateX(-50%);
@@ -73,18 +73,34 @@
 
 .cs-x-axis-grad{
 	background: #070f14;
+	color: #193446;
 	height: 5px;	
-
+	
 	position: absolute;
 	transform: translate(-50%,-50%);
 }
 
 .cs-y-axis-grad{
 	background: #070f14;
+	color: #193446;
 	width: 5px;	
-
+	
+	position: absolute;
 	position: absolute;
 	transform: translate(-50%,-50%);
+}
+
+.cs-x-axis-grad.centerer{
+	opacity: 0.2;
+	background: #193446;
+	top: 50%;
+	left: 50%;
+}
+.cs-y-axis-grad.centerer{
+	opacity: 0.2;
+	background: #193446;
+	top: 50%;
+	left: 50%;
 }
 
 #cs-x-axis{
