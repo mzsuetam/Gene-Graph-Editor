@@ -122,6 +122,9 @@
 	color: white;
 	padding: 10px;
 	
+}
+
+#cs-badge p span{
 	cursor: pointer;
 }
 

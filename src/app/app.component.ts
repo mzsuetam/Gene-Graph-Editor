@@ -66,6 +66,7 @@ export class AppComponent {
       this.mouse.y = event.clientY - document.getElementById('canvas')!.offsetTop
 
       if ( !this.mouse.lb_pressed && ( this.mouse.mb_pressed || this.mouse.rb_pressed ) ){
+        if ( !this.settings.dragging_enabled ) return
         this.settings.physical.coord_sys.x_offset += event.movementX
         this.settings.physical.coord_sys.y_offset += event.movementY
         this.mouse.prev_x = event.clientX
@@ -152,47 +153,45 @@ export class AppComponent {
         var i = 0
         var int = setInterval(() => {
           //<-- actions when we hold the button
-          if ( this.settings.dragging_enabled ){
-            new_node.physical.x = this.mouse.x - this.settings.physical.coord_sys.x_offset
-            new_node.physical.y = this.mouse.y - this.settings.physical.coord_sys.y_offset
+          new_node.physical.x = this.mouse.x - this.settings.physical.coord_sys.x_offset
+          new_node.physical.y = this.mouse.y - this.settings.physical.coord_sys.y_offset
 
-            for( let i=0; i< new_node.edges_1_out.length; i++ ){
-              let dx = new_node.physical.x - this.getEdge1ById(new_node.edges_1_out[i]).physical.x
-              let dy = new_node.physical.y - this.getEdge1ById(new_node.edges_1_out[i]).physical.y
+          for( let i=0; i< new_node.edges_1_out.length; i++ ){
+            let dx = new_node.physical.x - this.getEdge1ById(new_node.edges_1_out[i]).physical.x
+            let dy = new_node.physical.y - this.getEdge1ById(new_node.edges_1_out[i]).physical.y
 
-              this.getEdge1ById(new_node.edges_1_out[i]).physical.x = new_node.physical.x
-              this.getEdge1ById(new_node.edges_1_out[i]).physical.y = new_node.physical.y
-              
-              this.getEdge1ById(new_node.edges_1_out[i]).physical.width -= dx
-              this.getEdge1ById(new_node.edges_1_out[i]).physical.height -= dy
-            }
-            for( let i=0; i< new_node.edges_1_in.length; i++ ){
-              let dw = new_node.physical.x - this.getEdge1ById(new_node.edges_1_in[i]).physical.x
-              let dh = new_node.physical.y - this.getEdge1ById(new_node.edges_1_in[i]).physical.y
-              
-              this.getEdge1ById(new_node.edges_1_in[i]).physical.width = dw
-              this.getEdge1ById(new_node.edges_1_in[i]).physical.height = dh
-              
-            }
+            this.getEdge1ById(new_node.edges_1_out[i]).physical.x = new_node.physical.x
+            this.getEdge1ById(new_node.edges_1_out[i]).physical.y = new_node.physical.y
+            
+            this.getEdge1ById(new_node.edges_1_out[i]).physical.width -= dx
+            this.getEdge1ById(new_node.edges_1_out[i]).physical.height -= dy
+          }
+          for( let i=0; i< new_node.edges_1_in.length; i++ ){
+            let dw = new_node.physical.x - this.getEdge1ById(new_node.edges_1_in[i]).physical.x
+            let dh = new_node.physical.y - this.getEdge1ById(new_node.edges_1_in[i]).physical.y
+            
+            this.getEdge1ById(new_node.edges_1_in[i]).physical.width = dw
+            this.getEdge1ById(new_node.edges_1_in[i]).physical.height = dh
+            
+          }
 
-            for( let i=0; i< new_node.edges_2_out.length; i++ ){
-              let dx = new_node.physical.x - this.getEdge2ById(new_node.edges_2_out[i]).physical.x
-              let dy = new_node.physical.y - this.getEdge2ById(new_node.edges_2_out[i]).physical.y
+          for( let i=0; i< new_node.edges_2_out.length; i++ ){
+            let dx = new_node.physical.x - this.getEdge2ById(new_node.edges_2_out[i]).physical.x
+            let dy = new_node.physical.y - this.getEdge2ById(new_node.edges_2_out[i]).physical.y
 
-              this.getEdge2ById(new_node.edges_2_out[i]).physical.x = new_node.physical.x
-              this.getEdge2ById(new_node.edges_2_out[i]).physical.y = new_node.physical.y
-              
-              this.getEdge2ById(new_node.edges_2_out[i]).physical.width -= dx
-              this.getEdge2ById(new_node.edges_2_out[i]).physical.height -= dy
-            }
-            for( let i=0; i< new_node.edges_2_in.length; i++ ){
-              let dw = new_node.physical.x - this.getEdge2ById(new_node.edges_2_in[i]).physical.x
-              let dh = new_node.physical.y - this.getEdge2ById(new_node.edges_2_in[i]).physical.y
-              
-              this.getEdge2ById(new_node.edges_2_in[i]).physical.width = dw
-              this.getEdge2ById(new_node.edges_2_in[i]).physical.height = dh
-              
-            }
+            this.getEdge2ById(new_node.edges_2_out[i]).physical.x = new_node.physical.x
+            this.getEdge2ById(new_node.edges_2_out[i]).physical.y = new_node.physical.y
+            
+            this.getEdge2ById(new_node.edges_2_out[i]).physical.width -= dx
+            this.getEdge2ById(new_node.edges_2_out[i]).physical.height -= dy
+          }
+          for( let i=0; i< new_node.edges_2_in.length; i++ ){
+            let dw = new_node.physical.x - this.getEdge2ById(new_node.edges_2_in[i]).physical.x
+            let dh = new_node.physical.y - this.getEdge2ById(new_node.edges_2_in[i]).physical.y
+            
+            this.getEdge2ById(new_node.edges_2_in[i]).physical.width = dw
+            this.getEdge2ById(new_node.edges_2_in[i]).physical.height = dh
+            
           }
         }, 10)
       
@@ -231,36 +230,34 @@ export class AppComponent {
           this.mouse.lb_pressed = true
           var int = setInterval(() => {
             //<-- actions when we hold the button
-            if ( this.settings.dragging_enabled ){
-              if ( !this.isEdge1Flipped(id) ){
-                let x0 = this.getNodeById(new_edge.start_node).physical.x
-                let y0 = this.getNodeById(new_edge.start_node).physical.y
+            if ( !this.isEdge1Flipped(id) ){
+              let x0 = this.getNodeById(new_edge.start_node).physical.x
+              let y0 = this.getNodeById(new_edge.start_node).physical.y
+
+              let dx = Math.abs( this.mouse.x - this.settings.physical.coord_sys.x_offset - this.getNodeById(new_edge.end_node).physical.x )
+              let dy = Math.abs( this.mouse.y - this.settings.physical.coord_sys.y_offset - this.getNodeById(new_edge.end_node).physical.y )
+              let c = Math.sqrt( dx*dx + dy*dy )
+
+              new_edge.physical.v1_x = this.mouse.x - this.settings.physical.coord_sys.x_offset - x0
+              new_edge.physical.v1_y = this.mouse.y - this.settings.physical.coord_sys.y_offset - y0
   
-                let dx = Math.abs( this.mouse.x - this.settings.physical.coord_sys.x_offset - this.getNodeById(new_edge.end_node).physical.x )
-                let dy = Math.abs( this.mouse.y - this.settings.physical.coord_sys.y_offset - this.getNodeById(new_edge.end_node).physical.y )
-                let c = Math.sqrt( dx*dx + dy*dy )
+              new_edge.physical.v2_x = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? this.mouse.x - this.settings.physical.coord_sys.x_offset - x0 :  new_edge.physical.v2_x
+              new_edge.physical.v2_y = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? this.mouse.y - this.settings.physical.coord_sys.y_offset - y0 :  new_edge.physical.v2_y
+            }
+            else{
+              let x0 = this.getNodeById(new_edge.start_node).physical.x + new_edge.physical.width
+              let y0 = this.getNodeById(new_edge.start_node).physical.y + new_edge.physical.height
+
+              let dx = Math.abs( this.mouse.x + this.settings.physical.coord_sys.x_offset - this.getNodeById(new_edge.end_node).physical.x )
+              let dy = Math.abs( this.mouse.y + this.settings.physical.coord_sys.y_offset - this.getNodeById(new_edge.end_node).physical.y )
+              let c = Math.sqrt( dx*dx + dy*dy )
+              
+              new_edge.physical.v1_x = x0 - this.mouse.x + this.settings.physical.coord_sys.x_offset
+              new_edge.physical.v1_y = y0 - this.mouse.y + this.settings.physical.coord_sys.y_offset
   
-                new_edge.physical.v1_x = this.mouse.x - this.settings.physical.coord_sys.x_offset - x0
-                new_edge.physical.v1_y = this.mouse.y - this.settings.physical.coord_sys.y_offset - y0
-    
-                new_edge.physical.v2_x = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? this.mouse.x - this.settings.physical.coord_sys.x_offset - x0 :  new_edge.physical.v2_x
-                new_edge.physical.v2_y = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? this.mouse.y - this.settings.physical.coord_sys.y_offset - y0 :  new_edge.physical.v2_y
-              }
-              else{
-                let x0 = this.getNodeById(new_edge.start_node).physical.x + new_edge.physical.width
-                let y0 = this.getNodeById(new_edge.start_node).physical.y + new_edge.physical.height
-  
-                let dx = Math.abs( this.mouse.x + this.settings.physical.coord_sys.x_offset - this.getNodeById(new_edge.end_node).physical.x )
-                let dy = Math.abs( this.mouse.y + this.settings.physical.coord_sys.y_offset - this.getNodeById(new_edge.end_node).physical.y )
-                let c = Math.sqrt( dx*dx + dy*dy )
-                
-                new_edge.physical.v1_x = x0 - this.mouse.x + this.settings.physical.coord_sys.x_offset
-                new_edge.physical.v1_y = y0 - this.mouse.y + this.settings.physical.coord_sys.y_offset
-    
-                new_edge.physical.v2_x = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? x0 - this.mouse.x + this.settings.physical.coord_sys.x_offset :  new_edge.physical.v2_x
-                new_edge.physical.v2_y = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? y0 - this.mouse.y + this.settings.physical.coord_sys.y_offset :  new_edge.physical.v2_y
-  
-              }
+              new_edge.physical.v2_x = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? x0 - this.mouse.x + this.settings.physical.coord_sys.x_offset :  new_edge.physical.v2_x
+              new_edge.physical.v2_y = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? y0 - this.mouse.y + this.settings.physical.coord_sys.y_offset :  new_edge.physical.v2_y
+
             }
           }, 10)
         
@@ -295,36 +292,34 @@ export class AppComponent {
           this.mouse.lb_pressed = true
           var int = setInterval(() => {
             //<-- actions when we hold the button
-            if ( this.settings.dragging_enabled ){
-              if ( !this.isEdge2Flipped(id) ){
-                let x0 = this.getNodeById(new_edge.start_node).physical.x
-                let y0 = this.getNodeById(new_edge.start_node).physical.y
-  
-                let dx = Math.abs( this.mouse.x - this.settings.physical.coord_sys.x_offset - this.getNodeById(new_edge.end_node).physical.x )
-                let dy = Math.abs( this.mouse.y - this.settings.physical.coord_sys.y_offset - this.getNodeById(new_edge.end_node).physical.y )
-                let c = Math.sqrt( dx*dx + dy*dy )
-  
-                new_edge.physical.v1_x = this.mouse.x - this.settings.physical.coord_sys.x_offset - x0
-                new_edge.physical.v1_y = this.mouse.y - this.settings.physical.coord_sys.y_offset - y0
-  
-                new_edge.physical.v2_x = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? this.mouse.x - this.settings.physical.coord_sys.x_offset - x0 :  new_edge.physical.v2_x
-                new_edge.physical.v2_y = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? this.mouse.y - this.settings.physical.coord_sys.y_offset - y0 :  new_edge.physical.v2_y
-              }
-              else{
-                let x0 = this.getNodeById(new_edge.start_node).physical.x + new_edge.physical.width
-                let y0 = this.getNodeById(new_edge.start_node).physical.y + new_edge.physical.height
-  
-                let dx = Math.abs( this.mouse.x + this.settings.physical.coord_sys.x_offset - this.getNodeById(new_edge.end_node).physical.x )
-                let dy = Math.abs( this.mouse.y + this.settings.physical.coord_sys.y_offset - this.getNodeById(new_edge.end_node).physical.y )
-                let c = Math.sqrt( dx*dx + dy*dy )
-                
-                new_edge.physical.v1_x = x0 - this.mouse.x + this.settings.physical.coord_sys.x_offset
-                new_edge.physical.v1_y = y0 - this.mouse.y + this.settings.physical.coord_sys.y_offset
-  
-                new_edge.physical.v2_x = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? x0 - this.mouse.x + this.settings.physical.coord_sys.x_offset :  new_edge.physical.v2_x
-                new_edge.physical.v2_y = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? y0 - this.mouse.y + this.settings.physical.coord_sys.y_offset :  new_edge.physical.v2_y
-  
-              }
+            if ( !this.isEdge2Flipped(id) ){
+              let x0 = this.getNodeById(new_edge.start_node).physical.x
+              let y0 = this.getNodeById(new_edge.start_node).physical.y
+
+              let dx = Math.abs( this.mouse.x - this.settings.physical.coord_sys.x_offset - this.getNodeById(new_edge.end_node).physical.x )
+              let dy = Math.abs( this.mouse.y - this.settings.physical.coord_sys.y_offset - this.getNodeById(new_edge.end_node).physical.y )
+              let c = Math.sqrt( dx*dx + dy*dy )
+
+              new_edge.physical.v1_x = this.mouse.x - this.settings.physical.coord_sys.x_offset - x0
+              new_edge.physical.v1_y = this.mouse.y - this.settings.physical.coord_sys.y_offset - y0
+
+              new_edge.physical.v2_x = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? this.mouse.x - this.settings.physical.coord_sys.x_offset - x0 :  new_edge.physical.v2_x
+              new_edge.physical.v2_y = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? this.mouse.y - this.settings.physical.coord_sys.y_offset - y0 :  new_edge.physical.v2_y
+            }
+            else{
+              let x0 = this.getNodeById(new_edge.start_node).physical.x + new_edge.physical.width
+              let y0 = this.getNodeById(new_edge.start_node).physical.y + new_edge.physical.height
+
+              let dx = Math.abs( this.mouse.x + this.settings.physical.coord_sys.x_offset - this.getNodeById(new_edge.end_node).physical.x )
+              let dy = Math.abs( this.mouse.y + this.settings.physical.coord_sys.y_offset - this.getNodeById(new_edge.end_node).physical.y )
+              let c = Math.sqrt( dx*dx + dy*dy )
+              
+              new_edge.physical.v1_x = x0 - this.mouse.x + this.settings.physical.coord_sys.x_offset
+              new_edge.physical.v1_y = y0 - this.mouse.y + this.settings.physical.coord_sys.y_offset
+
+              new_edge.physical.v2_x = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? x0 - this.mouse.x + this.settings.physical.coord_sys.x_offset :  new_edge.physical.v2_x
+              new_edge.physical.v2_y = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? y0 - this.mouse.y + this.settings.physical.coord_sys.y_offset :  new_edge.physical.v2_y
+
             }
           }, 10)
         
@@ -538,8 +533,13 @@ export class AppComponent {
   }
 
   resetOffset(){
+    if ( !this.settings.dragging_enabled ) return
     this.settings.physical.coord_sys.x_offset = document.getElementById('canvas')!.offsetWidth/2
     this.settings.physical.coord_sys.y_offset = document.getElementById('canvas')!.offsetHeight/2
+  }
+
+  toogleDraging(){
+    this.settings.dragging_enabled = !this.settings.dragging_enabled 
   }
 
   getCsAxisGrad(axis: number){

@@ -20,9 +20,12 @@
 	+getCsAxisPosition(0, true)" ><p [attr.style]="getCsAxisGradLabelPosition(1)">{{getCsAxisGradLabelValue(0,i)}}</p></div>
 	<div class="cs-x-axis-grad centerer" [attr.style]="'width:'+settings.physical.coord_sys.grad_size+'px;'"></div>
 	<div class="cs-y-axis-grad centerer" [attr.style]="'height:'+settings.physical.coord_sys.grad_size+'px;'"></div>
-	<div id="cs-badge" (click)="resetOffset()" title="Press to reset">
+	<div id="cs-badge">
 		<p>
-			Looking at ({{getOffsetForPrint(0)}}, {{getOffsetForPrint(1)}})
+			Looking at: <span (click)="resetOffset()"  title="Press to reset">({{getOffsetForPrint(0)}}, {{getOffsetForPrint(1)}})</span>
+		</p>
+		<p>
+			View: <span  (click)="toogleDraging()"  title="Press to toogle">{{settings.dragging_enabled ? 'Unlocked' : 'Locked'}}</span>
 		</p>
 	</div>
 	<!-- EDGES 1 -->
