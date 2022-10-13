@@ -20,7 +20,7 @@ export class AppComponent {
   title = 'graph-playground';
 
   settings = {
-    dragging_enabled: true,
+    view_panning_enabled: true,
     
     show_curtain: false,
     show_properties_window: {
@@ -66,7 +66,7 @@ export class AppComponent {
       this.mouse.y = event.clientY - document.getElementById('canvas')!.offsetTop
 
       if ( !this.mouse.lb_pressed && ( this.mouse.mb_pressed || this.mouse.rb_pressed ) ){
-        if ( !this.settings.dragging_enabled ) return
+        if ( !this.settings.view_panning_enabled ) return
         this.settings.physical.coord_sys.x_offset += event.movementX
         this.settings.physical.coord_sys.y_offset += event.movementY
         this.mouse.prev_x = event.clientX
@@ -533,13 +533,13 @@ export class AppComponent {
   }
 
   resetOffset(){
-    if ( !this.settings.dragging_enabled ) return
+    if ( !this.settings.view_panning_enabled ) return
     this.settings.physical.coord_sys.x_offset = document.getElementById('canvas')!.offsetWidth/2
     this.settings.physical.coord_sys.y_offset = document.getElementById('canvas')!.offsetHeight/2
   }
 
   toogleDraging(){
-    this.settings.dragging_enabled = !this.settings.dragging_enabled 
+    this.settings.view_panning_enabled = !this.settings.view_panning_enabled 
   }
 
   getCsAxisGrad(axis: number){
