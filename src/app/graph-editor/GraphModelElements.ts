@@ -1,4 +1,4 @@
-import { AppComponent, NODE_TAG, EDGE_1_TAG, EDGE_2_TAG, EdgeType } from './app.component'
+import { GraphEditorComponent, NODE_TAG, EDGE_1_TAG, EDGE_2_TAG, EdgeType } from './graph-editor.component'
 
 
 export class Graph{
@@ -63,7 +63,7 @@ export class Graph{
   
 	physical : PhysicalEdgeProperties = {} as PhysicalEdgeProperties
   
-	constructor(n: number, parent : AppComponent, start:number, end:number, type: EdgeType, badge?: Badge){
+	constructor(n: number, parent : GraphEditorComponent, start:number, end:number, type: EdgeType, badge?: Badge){
 	  this.id =  n   
 	  this.start_node = start 
 	  this.end_node = end 
