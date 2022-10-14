@@ -29,7 +29,7 @@
 		</p>
 	</div>
 	<!-- EDGES 1 -->
-	<svg *ngFor="let e of edges_1" id="edge-1-{{e.id}}" [class]="'edge edge-type-1'" [attr.height]="e.physical.height" [attr.width]="e.physical.width"
+	<svg *ngFor="let e of graph.edges_1" id="edge-1-{{e.id}}" [class]="'edge edge-type-1'" [attr.height]="e.physical.height" [attr.width]="e.physical.width"
 		[style.left.px]="this.settings.physical.coord_sys.x_offset +  e.physical.x" 
 		[style.top.px]="this.settings.physical.coord_sys.y_offset +  e.physical.y">
 		<defs>
@@ -56,7 +56,7 @@
 		</text>
 	</svg>
 	<!-- EDGES 2 -->
-	<svg *ngFor="let e of edges_2" id="edge-2-{{e.id}}" [class]="'edge edge-type-2'" [attr.height]="e.physical.height" [attr.width]="e.physical.width"
+	<svg *ngFor="let e of graph.edges_2" id="edge-2-{{e.id}}" [class]="'edge edge-type-2'" [attr.height]="e.physical.height" [attr.width]="e.physical.width"
 		[style.left.px]="this.settings.physical.coord_sys.x_offset +  e.physical.x" 
 		[style.top.px]="this.settings.physical.coord_sys.y_offset +  e.physical.y">
 		<defs>
@@ -83,7 +83,7 @@
 		</text>
 	</svg>
 	<!-- NODES -->
-	<div *ngFor="let n of nodes" id="node-{{n.id}}" class="node" [ngClass]="{selected : isSelected(n.id)}" (click)="flipSelection(n.id)"
+	<div *ngFor="let n of graph.nodes" id="node-{{n.id}}" class="node" [ngClass]="{selected : isSelected(n.id)}" (click)="flipSelection(n.id)"
 		[style.width.px]="n.physical.width" [style.height.px]="n.physical.height"
 		[style.left.px]="this.settings.physical.coord_sys.x_offset + n.physical.x - n.physical.width/2" 
 		[style.top.px]="this.settings.physical.coord_sys.y_offset + n.physical.y - n.physical.height/2"

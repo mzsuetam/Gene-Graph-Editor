@@ -1,15 +1,17 @@
 import { Component } from '@angular/core';
 import { TitleStrategy } from '@angular/router';
+import { Graph, Node, Edge, PhysicalNodeProperties, PhysicalEdgeProperties, Badge } from './GraphModelElements'
 
 //////////////////////////////
 
-const NODE_TAG = "n"
-const EDGE_1_TAG = "e"
-const EDGE_2_TAG = "f"
+export const NODE_TAG = "n"
+export const EDGE_1_TAG = "e"
+export const EDGE_2_TAG = "f"
 
 //////////////////////////////
 
-enum EdgeType { E, F }
+export enum EdgeType { E, F }
+
 enum Tool { HAND, EDIT, ADDNODE, ADDEDGE1, ADDEDGE2 }
 @Component({
   selector: 'app-root',
@@ -48,9 +50,7 @@ export class AppComponent {
 
   mouse : Mouse = new Mouse;
 
-  nodes : Node[] = [] as Node[]
-  edges_1 : Edge[] = [] as Edge[]
-  edges_2 : Edge[] = [] as Edge[]
+  graph : Graph = new Graph;
 
   focused_node : number = -1; // for properties windows
   focused_edge_1 : number = -1; // for properties windows
@@ -105,7 +105,7 @@ export class AppComponent {
 
       if ( this.tool == Tool.ADDNODE ){
         this.addNode(this.mouse.x - this.settings.physical.coord_sys.x_offset,this.mouse.y - this.settings.physical.coord_sys.y_offset)
-        this.focused_node = this.nodes[this.nodes.length-1].id
+        this.focused_node = this.graph.nodes[this.graph.nodes.length-1].id
         this.settings.show_curtain = true
         this.settings.show_properties_window.node = true
       }
@@ -128,22 +128,22 @@ export class AppComponent {
   }
 
   public getNodeById(id: Number): Node{
-    return this.nodes.filter(obj => obj.id === id)[0]
+    return this.graph.nodes.filter(obj => obj.id === id)[0]
   }
 
   public getEdge1ById(id: Number): Edge{
-    return this.edges_1.filter(obj => obj.id === id)[0]
+    return this.graph.edges_1.filter(obj => obj.id === id)[0]
   }
 
   public getEdge2ById(id: Number): Edge{
-    return this.edges_2.filter(obj => obj.id === id)[0]
+    return this.graph.edges_2.filter(obj => obj.id === id)[0]
   }
 
   public async addNode(x:number, y:number, badge?: Badge){
-    let id = this.nodes.length ?  this.nodes[this.nodes.length-1].id + 1 : 0
+    let id = this.graph.nodes.length ?  this.graph.nodes[this.graph.nodes.length-1].id + 1 : 0
     let new_node = new Node(id, this.settings.physical.node_size, x,y, badge)
 
-    this.nodes.push( new_node )
+    this.graph.nodes.push( new_node )
     
     await new Promise(f => setTimeout(f, 100));
 
@@ -215,13 +215,13 @@ export class AppComponent {
   public async addEdge(start:number, end:number, type: EdgeType, badge?: Badge){
     // @FIXME: merge this if's
     if ( type == EdgeType.E ){
-      let id = this.edges_1.length ? this.edges_1[this.edges_1.length-1].id + 1 : 0
+      let id = this.graph.edges_1.length ? this.graph.edges_1[this.graph.edges_1.length-1].id + 1 : 0
       let new_edge = new Edge(id, this, start, end, type, badge)
 
       this.getNodeById(start).edges_1_out.push(id)
       this.getNodeById(end).edges_1_in.push(id)
   
-      this.edges_1.push( new_edge )
+      this.graph.edges_1.push( new_edge )
   
       await new Promise(f => setTimeout(f, 100));
   
@@ -278,12 +278,12 @@ export class AppComponent {
 
     }
     else if ( type == EdgeType.F){
-      let id = this.edges_2.length ? this.edges_2[this.edges_2.length-1].id + 1 : 0
+      let id = this.graph.edges_2.length ? this.graph.edges_2[this.graph.edges_2.length-1].id + 1 : 0
       let new_edge = new Edge(id, this, start, end, type, badge)
       this.getNodeById(start).edges_2_out.push(id)
       this.getNodeById(end).edges_2_in.push(id)
   
-      this.edges_2.push( new_edge )
+      this.graph.edges_2.push( new_edge )
   
       await new Promise(f => setTimeout(f, 100));
   
@@ -358,7 +358,7 @@ export class AppComponent {
     }
 
     this.focused_node = -1
-    this.nodes = this.nodes.filter( obj => obj.id !== id )
+    this.graph.nodes = this.graph.nodes.filter( obj => obj.id !== id )
   }
 
   deleteEdge1( id:number ){
@@ -370,7 +370,7 @@ export class AppComponent {
     end_node.edges_1_in = end_node.edges_1_in.filter( obj => obj !== id )
 
     this.focused_edge_1 = -1
-    this.edges_1 = this.edges_1.filter( obj => obj.id !== id )
+    this.graph.edges_1 = this.graph.edges_1.filter( obj => obj.id !== id )
   }
 
   deleteEdge2( id:number ){
@@ -382,7 +382,7 @@ export class AppComponent {
     end_node.edges_2_in = end_node.edges_2_in.filter( obj => obj !== id )
 
     this.focused_edge_2 = -1
-    this.edges_2 = this.edges_2.filter( obj => obj.id !== id )
+    this.graph.edges_2 = this.graph.edges_2.filter( obj => obj.id !== id )
   }
 
   isEdge1Flipped(e : number) : boolean{
@@ -428,14 +428,14 @@ export class AppComponent {
     if ( this.selected_nodes.length == 2 ) {
       // @TODO: handle add edge
       if ( this.tool == Tool.ADDEDGE1 ){
-        let e = this.edges_1.length ? this.edges_1[this.edges_1.length - 1].id + 1 : 0
+        let e = this.graph.edges_1.length ? this.graph.edges_1[this.graph.edges_1.length - 1].id + 1 : 0
         this.addEdge(this.selected_nodes[0],this.selected_nodes[1], EdgeType.E )
         this.focused_edge_1 = e
         this.settings.show_curtain = true
         this.settings.show_properties_window.edge_1 = true
       }
       else{ // if ( this.tool == Tool.ADDEDGE2 ){
-        let e = this.edges_2.length ? this.edges_1[this.edges_2.length - 1].id + 1 : 0
+        let e = this.graph.edges_2.length ? this.graph.edges_1[this.graph.edges_2.length - 1].id + 1 : 0
         this.addEdge(this.selected_nodes[0],this.selected_nodes[1], EdgeType.F )
         this.focused_edge_2 = e
         this.settings.show_curtain = true
@@ -636,143 +636,4 @@ export class Mouse {
     this.y = this.prev_y = 0
   }
 
-}
-
-export class Node{
-  id : number;
-  badge : Badge;
-
-  edges_1_out : number[] = []
-  edges_1_in : number[] = []
-  edges_2_out : number[] = []
-  edges_2_in : number[] = []
-
-  physical = {
-    x : window.innerWidth/2,
-    y : window.innerHeight/2,
-    height : 0,
-    width : 0
-  } as PhysicalNodeProperties
-
-  constructor(n: number, d: number, x: number, y: number, badge ?: Badge){
-    this.id =  n    
-    this.physical.x = x
-    this.physical.y = y
-    this.physical.width = d
-    this.physical.height = d
-    if ( badge ){
-      this.badge = badge
-    }
-    else{
-      let b = {
-        text: NODE_TAG,
-        sub: n.toString(),
-        sup: ""
-      } as Badge
-      this.badge = b
-    }
-  }
-}
-
-export interface PhysicalNodeProperties{
-  x : number;
-  y : number;
-  height : number;
-  width : number;
-}
-
-export class Edge{
-  id : number;
-  type : EdgeType;
-  badge : Badge;
-
-  start_node: number;
-  end_node: number;
-
-  physical = {
-    x : window.innerWidth/2,
-    y : window.innerHeight/2,
-    height : 0,
-    width : 0,
-    v1_x : 0,
-    v1_y : 0,
-    v2_x : 0,
-    v2_y : 0
-  } as PhysicalEdgeProperties
-
-  constructor(n: number, parent : AppComponent, start:number, end:number, type: EdgeType, badge?: Badge){
-    this.id =  n   
-    this.start_node = start 
-    this.end_node = end 
-    this.type = type
-
-    this.physical.x = parent.getNodeById(start).physical.x
-    this.physical.y = parent.getNodeById(start).physical.y
-
-    let dx = parent.getNodeById(start).physical.x - parent.getNodeById(end).physical.x
-    let dy = parent.getNodeById(start).physical.y - parent.getNodeById(end).physical.y
-    
-    this.physical.width -= dx
-    this.physical.height -= dy
-
-    this.setVSimple(50)
-
-    if ( badge ){
-      this.badge = badge
-    }
-    else if ( type == EdgeType.E ){
-      let b = {
-        text: EDGE_1_TAG,
-        sub: n.toString(),
-        sup: ""
-      } as Badge
-      this.badge = b
-    }
-    else { //} if ( type == EdgeType.F ){
-      let b = {
-        text: EDGE_2_TAG,
-        sub: n.toString(),
-        sup: ""
-      } as Badge
-      this.badge = b
-    }
-  }
-
-  private setVSimple(dh: number){
-    // let x1 = this.physical.x
-    // let x2 = this.physical.x+this.physical.width
-    // let y1 = this.physical.y
-    // let y2 = this.physical.y+this.physical.height
-
-    // if ( x1 == x2 ){
-    //   let xc = x1
-    //   let yc = (y1+y2)/2
-
-    //   let xs = x1+dh
-    //   let ys = yc
-
-    //   this.physical.v1_x = this.physical.v2_x = xs
-    //   this.physical.v1_y = this.physical.v2_y = ys
-    // }
-
-    // console.log( x1 + ' ' + y2 + ' | ' + x2 + ' ' + y2 + ' | ' + this.physical.v1_x  + ' ' + this.physical.v1_y  )
-  }
-  
-}
-
-export interface PhysicalEdgeProperties{
-  x : number;
-  y : number;
-  height : number;
-  width : number;
-  v1_x : number;
-  v1_y : number;
-  v2_x : number;
-  v2_y : number;
-}
-
-export interface Badge{
-  text: string;
-  sub: string;
-  sup: string;
 }
