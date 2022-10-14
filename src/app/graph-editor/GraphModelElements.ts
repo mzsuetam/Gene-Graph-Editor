@@ -63,7 +63,7 @@ export class Graph{
   
 	physical : PhysicalEdgeProperties = {} as PhysicalEdgeProperties
   
-	constructor(n: number, parent : GraphEditorComponent, start:number, end:number, type: EdgeType, badge?: Badge){
+	constructor(n: number, parent : GraphEditorComponent, start:number, end:number, type: EdgeType, v_vector?: number[], badge?: Badge){
 	  this.id =  n   
 	  this.start_node = start 
 	  this.end_node = end 
@@ -78,15 +78,17 @@ export class Graph{
 	  this.physical.width = -dx
 	  this.physical.height = -dy
 
+	  v_vector = v_vector?.length == 2 ? v_vector : [0,0]
+
 	  this.physical = {
 		x: x0,
 		y: y0,
 		height: -dy,
 		width: -dx,
-		v1_x: 0,
-		v1_y: 0,
-		v2_x: 0,
-		v2_y: 0,
+		v1_x: v_vector[0],
+		v1_y: v_vector[1],
+		v2_x: v_vector[0],
+		v2_y: v_vector[1],
 	  }
   
 	  this.setVSimple(50)

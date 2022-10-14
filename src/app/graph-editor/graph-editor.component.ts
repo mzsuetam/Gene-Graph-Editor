@@ -110,20 +110,33 @@ export class GraphEditorComponent implements OnInit {
       }
     });
 
-    this.addNode(-300,0)
-    this.addNode(0,-300)
-    this.addNode(0,300)
-    this.addNode(300,0,{text:"bage", sub:"", sup:"4"})
+    //// THIS METHOD IS ONLY FOR PRESENTATION
+    this.loadExample();
+    ////
+  }
+
+  loadExample(){
+    this.addNode(-550,0,{text:"ST", sub:"A", sup:""})
+    this.addNode(-250,-300, {text:"bage", sub:"III", sup:""})
+    this.addNode(-250,300)
+    this.addNode(0,0, {text:"END", sub:"", sup:""})
+    this.addNode(250,300)
+    this.addNode(250,-300,{text:"n", sub:"5", sup:"'"})
+    this.addNode(550,0,{text:"ST", sub:"B", sup:""})
     
-    this.addEdge(0, 1, EdgeType.E)
-    this.addEdge(0, 2, EdgeType.E)
-    this.addEdge(1, 3, EdgeType.E)
+    this.addEdge(0, 1, EdgeType.E, [100,-200])
+    this.addEdge(0, 2, EdgeType.E, [100,200])
+    this.addEdge(1, 5, EdgeType.E)
     this.addEdge(2, 3, EdgeType.E)
+    this.addEdge(5, 3, EdgeType.E)
+    this.addEdge(4, 2, EdgeType.E, [], {text:"badge", sub:"without", sup:"v_vector"})
+    this.addEdge(4, 6, EdgeType.E, [200,-100])
+    this.addEdge(5, 6, EdgeType.E, [200,100])
     
-    this.addEdge(3, 2, EdgeType.F)
-    this.addEdge(3, 0, EdgeType.F)
-    this.addEdge(1, 2, EdgeType.F)
-    this.addEdge(2, 0, EdgeType.F, {text:"text", sub:"sub", sup:"sup"})
+    this.addEdge(3, 0, EdgeType.F, [-300,150])
+    this.addEdge(3, 1, EdgeType.F, [-200,-100])
+    this.addEdge(3, 4, EdgeType.F, [0,200])
+    this.addEdge(3, 6, EdgeType.F, [300,150], {text:"text", sub:"sub", sup:"sup"})
   }
 
   public getNodeById(id: Number): Node{
@@ -211,11 +224,11 @@ export class GraphEditorComponent implements OnInit {
     });
   }
 
-  public async addEdge(start:number, end:number, type: EdgeType, badge?: Badge){
+  public async addEdge(start:number, end:number, type: EdgeType, v_vector?: number[], badge?: Badge){
     // @FIXME: merge this if's
     if ( type == EdgeType.E ){
       let id = this.graph.edges_1.length ? this.graph.edges_1[this.graph.edges_1.length-1].id + 1 : 0
-      let new_edge = new Edge(id, this, start, end, type, badge)
+      let new_edge = new Edge(id, this, start, end, type, v_vector, badge)
 
       this.getNodeById(start).edges_1_out.push(id)
       this.getNodeById(end).edges_1_in.push(id)
@@ -258,6 +271,7 @@ export class GraphEditorComponent implements OnInit {
               new_edge.physical.v2_y = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? y0 - this.mouse.y + this.settings.physical.coord_sys.y_offset :  new_edge.physical.v2_y
 
             }
+            console.log(new_edge.physical.v1_x + " " + new_edge.physical.v1_y)
           }, 10)
         
           document.addEventListener("mouseup", () => {
@@ -278,7 +292,7 @@ export class GraphEditorComponent implements OnInit {
     }
     else if ( type == EdgeType.F){
       let id = this.graph.edges_2.length ? this.graph.edges_2[this.graph.edges_2.length-1].id + 1 : 0
-      let new_edge = new Edge(id, this, start, end, type, badge)
+      let new_edge = new Edge(id, this, start, end, type, v_vector, badge)
       this.getNodeById(start).edges_2_out.push(id)
       this.getNodeById(end).edges_2_in.push(id)
   
@@ -320,6 +334,7 @@ export class GraphEditorComponent implements OnInit {
               new_edge.physical.v2_y = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? y0 - this.mouse.y + this.settings.physical.coord_sys.y_offset :  new_edge.physical.v2_y
 
             }
+            console.log(new_edge.physical.v1_x + " " + new_edge.physical.v1_y)
           }, 10)
         
           document.addEventListener("mouseup", () => {
