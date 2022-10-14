@@ -1,4 +1,4 @@
-# GraphPlayground
+# Gene Graph Editor
 
 Graph editor written in Angular. \
 Developed with useage & customisation ease in mind.\
