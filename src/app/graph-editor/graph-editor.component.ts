@@ -271,7 +271,6 @@ export class GraphEditorComponent implements OnInit {
               new_edge.physical.v2_y = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? y0 - this.mouse.y + this.settings.physical.coord_sys.y_offset :  new_edge.physical.v2_y
 
             }
-            console.log(new_edge.physical.v1_x + " " + new_edge.physical.v1_y)
           }, 10)
         
           document.addEventListener("mouseup", () => {
@@ -334,7 +333,6 @@ export class GraphEditorComponent implements OnInit {
               new_edge.physical.v2_y = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? y0 - this.mouse.y + this.settings.physical.coord_sys.y_offset :  new_edge.physical.v2_y
 
             }
-            console.log(new_edge.physical.v1_x + " " + new_edge.physical.v1_y)
           }, 10)
         
           document.addEventListener("mouseup", () => {
