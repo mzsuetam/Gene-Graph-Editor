@@ -29,7 +29,7 @@
 		</p>
 	</div>
 	<!-- EDGES 1 -->
-	<svg *ngFor="let e of graph.edges_1" id="edge-1-{{e.id}}" [class]="'edge edge-type-1'" [attr.height]="e.physical.height" [attr.width]="e.physical.width"
+	<svg *ngFor="let e of graph.edges_1" id="edge-1-{{e.id}}" [class]="'edge edge-type-1'"
 		[style.left.px]="this.settings.physical.coord_sys.x_offset +  e.physical.x" 
 		[style.top.px]="this.settings.physical.coord_sys.y_offset +  e.physical.y">
 		<defs>
@@ -56,7 +56,7 @@
 		</text>
 	</svg>
 	<!-- EDGES 2 -->
-	<svg *ngFor="let e of graph.edges_2" id="edge-2-{{e.id}}" [class]="'edge edge-type-2'" [attr.height]="e.physical.height" [attr.width]="e.physical.width"
+	<svg *ngFor="let e of graph.edges_2" id="edge-2-{{e.id}}" [class]="'edge edge-type-2'" 
 		[style.left.px]="this.settings.physical.coord_sys.x_offset +  e.physical.x" 
 		[style.top.px]="this.settings.physical.coord_sys.y_offset +  e.physical.y">
 		<defs>
