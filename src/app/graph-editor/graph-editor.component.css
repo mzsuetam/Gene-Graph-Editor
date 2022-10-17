@@ -172,15 +172,17 @@
 	stroke: none;
 }
 
-.edge-type-1{
+.edge-type-0{
 	stroke:#D1495B;
 	fill: azure;
 }
 
-.edge-type-2{
+.edge-type-1{
 	stroke: #EDAE49;
 	fill: azure;
 }
+
+/* @TODO: add comments describing all functionalities */
 
 .sup-text{
 	position: absolute;

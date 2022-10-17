@@ -1,15 +1,18 @@
-import { GraphEditorComponent, NODE_TAG, EDGE_1_TAG, EDGE_2_TAG, EdgeType } from './graph-editor.component'
+import { GraphEditorComponent, NODE_TAG, EdgeType } from './graph-editor.component'
 
 
 export class Graph{
 	nodes : Node[];
-	edges_1 : Edge[];
-	edges_2 : Edge[];
+	edges : Edge[][];
   
 	constructor(){
 	  this.nodes = []
-	  this.edges_1 = []
-	  this.edges_2 = []
+	  this.edges = []
+
+	  const n_types = Object.keys(EdgeType).filter((v) => isNaN(Number(v))).length;
+	  for ( let i=0; i<n_types; i++ ){
+		this.edges.push([])
+	  }
 	}
   }
   
@@ -17,14 +20,12 @@ export class Graph{
 	id : number;
 	badge : Badge;
   
-	edges_1_out : number[] = [];
-	edges_1_in : number[] = [];
-	edges_2_out : number[] = [];
-	edges_2_in : number[] = [];
+	edges_out : number[][] = [];
+	edges_in : number[][] = [];
   
 	physical: PhysicalNodeProperties = {} as PhysicalNodeProperties;
   
-	constructor(n: number, d: number, x: number, y: number, badge ?: Badge){
+	constructor(n: number, d: number, x: number, y: number, edge_types_n: number , badge ?: Badge){
 	  this.id =  n    
 	  this.physical = {
 		x: x,
@@ -32,6 +33,13 @@ export class Graph{
 		height: d,
 		width: d
 	  }
+
+	  for ( let t=0; t<edge_types_n; t++){
+		this.edges_out.push([])
+		this.edges_in.push([])
+	  }
+
+
 	  if ( badge ){
 		this.badge = badge
 	  }
@@ -64,75 +72,44 @@ export class Graph{
 	physical : PhysicalEdgeProperties = {} as PhysicalEdgeProperties
   
 	constructor(n: number, parent : GraphEditorComponent, start:number, end:number, type: EdgeType, v_vector?: number[], badge?: Badge){
-	  this.id =  n   
-	  this.start_node = start 
-	  this.end_node = end 
-	  this.type = type
-  
-	  let x0 = parent.getNodeById(start).physical.x
-	  let y0 = parent.getNodeById(start).physical.y
-  
-	  let dx = parent.getNodeById(start).physical.x - parent.getNodeById(end).physical.x
-	  let dy = parent.getNodeById(start).physical.y - parent.getNodeById(end).physical.y
-	  
-	  this.physical.width = -dx
-	  this.physical.height = -dy
+		this.id =  n   
+		this.start_node = start 
+		this.end_node = end 
+		this.type = type
+	
+		let x0 = parent.getNodeById(start).physical.x
+		let y0 = parent.getNodeById(start).physical.y
+	
+		let dx = parent.getNodeById(start).physical.x - parent.getNodeById(end).physical.x
+		let dy = parent.getNodeById(start).physical.y - parent.getNodeById(end).physical.y
+		
+		this.physical.width = -dx
+		this.physical.height = -dy
 
-	  v_vector = v_vector?.length == 2 ? v_vector : [0,0]
+		v_vector = v_vector?.length == 2 ? v_vector : [0,0]
 
-	  this.physical = {
-		x: x0,
-		y: y0,
-		height: -dy,
-		width: -dx,
-		v1_x: v_vector[0],
-		v1_y: v_vector[1],
-		v2_x: v_vector[0],
-		v2_y: v_vector[1],
-	  }
-  
-	  this.setVSimple(50)
-  
-	  if ( badge ){
-		this.badge = badge
-	  }
-	  else if ( type == EdgeType.E ){
+		this.physical = {
+			x: x0,
+			y: y0,
+			height: -dy,
+			width: -dx,
+			v1_x: v_vector[0],
+			v1_y: v_vector[1],
+			v2_x: v_vector[0],
+			v2_y: v_vector[1],
+		}
+	
+		if ( badge ){
+			this.badge = badge
+	  	}
 		let b = {
-		  text: EDGE_1_TAG,
-		  sub: n.toString(),
-		  sup: ""
+			text: EdgeType[type],
+			sub: n.toString(),
+			sup: ""
 		} as Badge
 		this.badge = b
-	  }
-	  else { //} if ( type == EdgeType.F ){
-		let b = {
-		  text: EDGE_2_TAG,
-		  sub: n.toString(),
-		  sup: ""
-		} as Badge
-		this.badge = b
-	  }
 	}
   
-	private setVSimple(dh: number){
-	  // let x1 = this.physical.x
-	  // let x2 = this.physical.x+this.physical.width
-	  // let y1 = this.physical.y
-	  // let y2 = this.physical.y+this.physical.height
-  
-	  // if ( x1 == x2 ){
-	  //   let xc = x1
-	  //   let yc = (y1+y2)/2
-  
-	  //   let xs = x1+dh
-	  //   let ys = yc
-  
-	  //   this.physical.v1_x = this.physical.v2_x = xs
-	  //   this.physical.v1_y = this.physical.v2_y = ys
-	  // }
-  
-	  // console.log( x1 + ' ' + y2 + ' | ' + x2 + ' ' + y2 + ' | ' + this.physical.v1_x  + ' ' + this.physical.v1_y  )
-	}
 	
   }
   

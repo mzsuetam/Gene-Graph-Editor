@@ -4,14 +4,13 @@ import { Graph, Node, Edge, PhysicalNodeProperties, PhysicalEdgeProperties, Badg
 //////////////////////////////
 
 export const NODE_TAG = "n"
-export const EDGE_1_TAG = "e"
-export const EDGE_2_TAG = "f"
+
+export enum EdgeType { e,f }
 
 //////////////////////////////
 
-export enum EdgeType { E, F }
 
-enum Tool { HAND, EDIT, ADDNODE, ADDEDGE1, ADDEDGE2 }
+enum Tool { HAND, EDIT, ADDNODE, ADDEDGE }
 
 @Component({
   selector: 'app-graph-editor',
@@ -26,8 +25,7 @@ export class GraphEditorComponent implements OnInit {
     show_curtain: false,
     show_properties_window: {
       node: false,
-      edge_1: false,
-      edge_2: false
+      edges: [] as boolean[],
     },
 
     physical: {
@@ -46,19 +44,24 @@ export class GraphEditorComponent implements OnInit {
   }
 
   tool : Tool = Tool.HAND
+  tool_edge_type : number = 0
 
   mouse : Mouse = new Mouse;
 
   graph : Graph = new Graph;
 
   focused_node : number = -1; // for properties windows
-  focused_edge_1 : number = -1; // for properties windows
-  focused_edge_2 : number = -1; // for properties windows
+  focused_edges : number[] = []; // for properties windows
   selected_nodes : number[] = []
 
   deletion_locked = true
   
   constructor(){
+
+    for (let i=0; i<this.getEdgeTypesLength(); i++){
+      this.settings.show_properties_window.edges.push(false)
+      this.focused_edges.push(-1)
+    }
 
     document.addEventListener('mousemove', (event) => {
       this.mouse.x = event.clientX - document.getElementById('canvas')!.offsetLeft
@@ -95,7 +98,6 @@ export class GraphEditorComponent implements OnInit {
     });
   }
 
-
   ngOnInit(){
     this.settings.physical.coord_sys.x_offset = document.getElementById('canvas')!.offsetWidth/2
     this.settings.physical.coord_sys.y_offset = document.getElementById('canvas')!.offsetHeight/2
@@ -115,6 +117,11 @@ export class GraphEditorComponent implements OnInit {
     ////
   }
 
+  getEdgeTypesLength(): number{
+    return Object.keys(EdgeType).filter((v) => isNaN(Number(v))).length;
+  }
+
+
   loadExample(){
     this.addNode(-550,0,{text:"ST", sub:"A", sup:""})
     this.addNode(-250,-300, {text:"bage", sub:"III", sup:""})
@@ -124,36 +131,32 @@ export class GraphEditorComponent implements OnInit {
     this.addNode(250,-300,{text:"n", sub:"5", sup:"'"})
     this.addNode(550,0,{text:"ST", sub:"B", sup:""})
     
-    this.addEdge(0, 1, EdgeType.E, [100,-200])
-    this.addEdge(0, 2, EdgeType.E, [100,200])
-    this.addEdge(1, 5, EdgeType.E)
-    this.addEdge(2, 3, EdgeType.E)
-    this.addEdge(5, 3, EdgeType.E)
-    this.addEdge(4, 2, EdgeType.E, [], {text:"badge", sub:"without", sup:"v_vector"})
-    this.addEdge(4, 6, EdgeType.E, [200,-100])
-    this.addEdge(5, 6, EdgeType.E, [200,100])
+    this.addEdge(0, 1, EdgeType.e, [100,-200])
+    this.addEdge(0, 2, EdgeType.e, [100,200])
+    this.addEdge(1, 5, EdgeType.e)
+    this.addEdge(2, 3, EdgeType.e)
+    this.addEdge(5, 3, EdgeType.e)
+    this.addEdge(4, 2, EdgeType.e, [], {text:"badge", sub:"without", sup:"v_vector"})
+    this.addEdge(4, 6, EdgeType.e, [200,-100])
+    this.addEdge(5, 6, EdgeType.e, [200,100])
     
-    this.addEdge(3, 0, EdgeType.F, [-300,150])
-    this.addEdge(3, 1, EdgeType.F, [-200,-100])
-    this.addEdge(3, 4, EdgeType.F, [0,200])
-    this.addEdge(3, 6, EdgeType.F, [300,150], {text:"text", sub:"sub", sup:"sup"})
+    this.addEdge(3, 0, EdgeType.f, [-300,150])
+    this.addEdge(3, 1, EdgeType.f, [-200,-100])
+    this.addEdge(3, 4, EdgeType.f, [0,200])
+    this.addEdge(3, 6, EdgeType.f, [300,150], {text:"text", sub:"sub", sup:"sup"})
   }
 
   public getNodeById(id: Number): Node{
     return this.graph.nodes.filter(obj => obj.id === id)[0]
   }
 
-  public getEdge1ById(id: Number): Edge{
-    return this.graph.edges_1.filter(obj => obj.id === id)[0]
-  }
-
-  public getEdge2ById(id: Number): Edge{
-    return this.graph.edges_2.filter(obj => obj.id === id)[0]
+  public getEdgeById(type: EdgeType, id: Number): Edge{
+    return this.graph.edges[type].filter(obj => obj.id === id)[0]
   }
 
   public async addNode(x:number, y:number, badge?: Badge){
     let id = this.graph.nodes.length ?  this.graph.nodes[this.graph.nodes.length-1].id + 1 : 0
-    let new_node = new Node(id, this.settings.physical.node_size, x,y, badge)
+    let new_node = new Node(id, this.settings.physical.node_size, x,y, this.getEdgeTypesLength(), badge)
 
     this.graph.nodes.push( new_node )
     
@@ -168,42 +171,25 @@ export class GraphEditorComponent implements OnInit {
           new_node.physical.x = this.mouse.x - this.settings.physical.coord_sys.x_offset
           new_node.physical.y = this.mouse.y - this.settings.physical.coord_sys.y_offset
 
-          for( let i=0; i< new_node.edges_1_out.length; i++ ){
-            let dx = new_node.physical.x - this.getEdge1ById(new_node.edges_1_out[i]).physical.x
-            let dy = new_node.physical.y - this.getEdge1ById(new_node.edges_1_out[i]).physical.y
-
-            this.getEdge1ById(new_node.edges_1_out[i]).physical.x = new_node.physical.x
-            this.getEdge1ById(new_node.edges_1_out[i]).physical.y = new_node.physical.y
-            
-            this.getEdge1ById(new_node.edges_1_out[i]).physical.width -= dx
-            this.getEdge1ById(new_node.edges_1_out[i]).physical.height -= dy
-          }
-          for( let i=0; i< new_node.edges_1_in.length; i++ ){
-            let dw = new_node.physical.x - this.getEdge1ById(new_node.edges_1_in[i]).physical.x
-            let dh = new_node.physical.y - this.getEdge1ById(new_node.edges_1_in[i]).physical.y
-            
-            this.getEdge1ById(new_node.edges_1_in[i]).physical.width = dw
-            this.getEdge1ById(new_node.edges_1_in[i]).physical.height = dh
-            
-          }
-
-          for( let i=0; i< new_node.edges_2_out.length; i++ ){
-            let dx = new_node.physical.x - this.getEdge2ById(new_node.edges_2_out[i]).physical.x
-            let dy = new_node.physical.y - this.getEdge2ById(new_node.edges_2_out[i]).physical.y
-
-            this.getEdge2ById(new_node.edges_2_out[i]).physical.x = new_node.physical.x
-            this.getEdge2ById(new_node.edges_2_out[i]).physical.y = new_node.physical.y
-            
-            this.getEdge2ById(new_node.edges_2_out[i]).physical.width -= dx
-            this.getEdge2ById(new_node.edges_2_out[i]).physical.height -= dy
-          }
-          for( let i=0; i< new_node.edges_2_in.length; i++ ){
-            let dw = new_node.physical.x - this.getEdge2ById(new_node.edges_2_in[i]).physical.x
-            let dh = new_node.physical.y - this.getEdge2ById(new_node.edges_2_in[i]).physical.y
-            
-            this.getEdge2ById(new_node.edges_2_in[i]).physical.width = dw
-            this.getEdge2ById(new_node.edges_2_in[i]).physical.height = dh
-            
+          for ( let t=0; t<this.getEdgeTypesLength(); t++ ){
+            for( let i=0; i< new_node.edges_out[t].length; i++ ){
+              let dx = new_node.physical.x - this.getEdgeById(t,new_node.edges_out[t][i]).physical.x
+              let dy = new_node.physical.y - this.getEdgeById(t,new_node.edges_out[t][i]).physical.y
+  
+              this.getEdgeById(t,new_node.edges_out[t][i]).physical.x = new_node.physical.x
+              this.getEdgeById(t,new_node.edges_out[t][i]).physical.y = new_node.physical.y
+              
+              this.getEdgeById(t,new_node.edges_out[t][i]).physical.width -= dx
+              this.getEdgeById(t,new_node.edges_out[t][i]).physical.height -= dy
+            }
+            for( let i=0; i< new_node.edges_in[t].length; i++ ){
+              let dw = new_node.physical.x - this.getEdgeById(t,new_node.edges_in[t][i]).physical.x
+              let dh = new_node.physical.y - this.getEdgeById(t,new_node.edges_in[t][i]).physical.y
+              
+              this.getEdgeById(t,new_node.edges_in[t][i]).physical.width = dw
+              this.getEdgeById(t,new_node.edges_in[t][i]).physical.height = dh
+              
+            }
           }
         }, 10)
       
@@ -225,194 +211,106 @@ export class GraphEditorComponent implements OnInit {
   }
 
   public async addEdge(start:number, end:number, type: EdgeType, v_vector?: number[], badge?: Badge){
-    // @FIXME: merge this if's
-    if ( type == EdgeType.E ){
-      let id = this.graph.edges_1.length ? this.graph.edges_1[this.graph.edges_1.length-1].id + 1 : 0
-      let new_edge = new Edge(id, this, start, end, type, v_vector, badge)
+    let id = this.graph.edges[type].length ? this.graph.edges[type][this.graph.edges[type].length-1].id + 1 : 0
+    let new_edge = new Edge(id, this, start, end, type, v_vector, badge)
 
-      this.getNodeById(start).edges_1_out.push(id)
-      this.getNodeById(end).edges_1_in.push(id)
-  
-      this.graph.edges_1.push( new_edge )
-  
-      await new Promise(f => setTimeout(f, 100));
-  
-      document.getElementById( "edge-1-"+id+"-path" )!.addEventListener('mousedown', (e) => {
-        if ( this.tool == Tool.HAND &&  e.button == 0 ){
-          this.mouse.lb_pressed = true
-          var int = setInterval(() => {
-            //<-- actions when we hold the button
-            if ( !this.isEdge1Flipped(id) ){
-              let x0 = this.getNodeById(new_edge.start_node).physical.x
-              let y0 = this.getNodeById(new_edge.start_node).physical.y
+    this.getNodeById(start).edges_out[type].push(id)
+    this.getNodeById(end).edges_in[type].push(id)
+    
+    this.graph.edges[type].push( new_edge )
+    
+    await new Promise(f => setTimeout(f, 100));
 
-              let dx = Math.abs( this.mouse.x - this.settings.physical.coord_sys.x_offset - this.getNodeById(new_edge.end_node).physical.x )
-              let dy = Math.abs( this.mouse.y - this.settings.physical.coord_sys.y_offset - this.getNodeById(new_edge.end_node).physical.y )
-              let c = Math.sqrt( dx*dx + dy*dy )
+    document.getElementById( "edge-"+type+"-"+id+"-path" )!.addEventListener('mousedown', (e) => {
+      if ( this.tool == Tool.HAND &&  e.button == 0 ){
+        this.mouse.lb_pressed = true
+        var int = setInterval(() => {
+          //<-- actions when we hold the button
+          if ( !this.isEdgeFlipped(type,id) ){
+            let x0 = this.getNodeById(new_edge.start_node).physical.x
+            let y0 = this.getNodeById(new_edge.start_node).physical.y
 
-              new_edge.physical.v1_x = this.mouse.x - this.settings.physical.coord_sys.x_offset - x0
-              new_edge.physical.v1_y = this.mouse.y - this.settings.physical.coord_sys.y_offset - y0
-  
-              new_edge.physical.v2_x = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? this.mouse.x - this.settings.physical.coord_sys.x_offset - x0 :  new_edge.physical.v2_x
-              new_edge.physical.v2_y = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? this.mouse.y - this.settings.physical.coord_sys.y_offset - y0 :  new_edge.physical.v2_y
-            }
-            else{
-              let x0 = this.getNodeById(new_edge.start_node).physical.x + new_edge.physical.width
-              let y0 = this.getNodeById(new_edge.start_node).physical.y + new_edge.physical.height
+            let dx = Math.abs( this.mouse.x - this.settings.physical.coord_sys.x_offset - this.getNodeById(new_edge.end_node).physical.x )
+            let dy = Math.abs( this.mouse.y - this.settings.physical.coord_sys.y_offset - this.getNodeById(new_edge.end_node).physical.y )
+            let c = Math.sqrt( dx*dx + dy*dy )
 
-              let dx = Math.abs( this.mouse.x + this.settings.physical.coord_sys.x_offset - this.getNodeById(new_edge.end_node).physical.x )
-              let dy = Math.abs( this.mouse.y + this.settings.physical.coord_sys.y_offset - this.getNodeById(new_edge.end_node).physical.y )
-              let c = Math.sqrt( dx*dx + dy*dy )
-              
-              new_edge.physical.v1_x = x0 - this.mouse.x + this.settings.physical.coord_sys.x_offset
-              new_edge.physical.v1_y = y0 - this.mouse.y + this.settings.physical.coord_sys.y_offset
-  
-              new_edge.physical.v2_x = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? x0 - this.mouse.x + this.settings.physical.coord_sys.x_offset :  new_edge.physical.v2_x
-              new_edge.physical.v2_y = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? y0 - this.mouse.y + this.settings.physical.coord_sys.y_offset :  new_edge.physical.v2_y
+            new_edge.physical.v1_x = this.mouse.x - this.settings.physical.coord_sys.x_offset - x0
+            new_edge.physical.v1_y = this.mouse.y - this.settings.physical.coord_sys.y_offset - y0
 
-            }
-          }, 10)
-        
-          document.addEventListener("mouseup", () => {
-            clearInterval(int);
-            this.mouse.lb_pressed = false
-          //<-- actions when we release the button
-            // console.log("release")
-        
-          })
-        }
-        else if ( this.tool == Tool.EDIT && e.button == 0 ){
-          this.focused_edge_1 = id
-          this.settings.show_curtain = true
-          this.settings.show_properties_window.edge_1 = true
-        }
-      });
+            new_edge.physical.v2_x = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? this.mouse.x - this.settings.physical.coord_sys.x_offset - x0 :  new_edge.physical.v2_x
+            new_edge.physical.v2_y = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? this.mouse.y - this.settings.physical.coord_sys.y_offset - y0 :  new_edge.physical.v2_y
+          }
+          else{
+            let x0 = this.getNodeById(new_edge.start_node).physical.x + new_edge.physical.width
+            let y0 = this.getNodeById(new_edge.start_node).physical.y + new_edge.physical.height
 
-    }
-    else if ( type == EdgeType.F){
-      let id = this.graph.edges_2.length ? this.graph.edges_2[this.graph.edges_2.length-1].id + 1 : 0
-      let new_edge = new Edge(id, this, start, end, type, v_vector, badge)
-      this.getNodeById(start).edges_2_out.push(id)
-      this.getNodeById(end).edges_2_in.push(id)
-  
-      this.graph.edges_2.push( new_edge )
-  
-      await new Promise(f => setTimeout(f, 100));
-  
-      document.getElementById( "edge-2-"+id+"-path" )!.addEventListener('mousedown', (e) => {
-        if ( this.tool == Tool.HAND && e.button == 0 ){
-          this.mouse.lb_pressed = true
-          var int = setInterval(() => {
-            //<-- actions when we hold the button
-            if ( !this.isEdge2Flipped(id) ){
-              let x0 = this.getNodeById(new_edge.start_node).physical.x
-              let y0 = this.getNodeById(new_edge.start_node).physical.y
+            let dx = Math.abs( this.mouse.x + this.settings.physical.coord_sys.x_offset - this.getNodeById(new_edge.end_node).physical.x )
+            let dy = Math.abs( this.mouse.y + this.settings.physical.coord_sys.y_offset - this.getNodeById(new_edge.end_node).physical.y )
+            let c = Math.sqrt( dx*dx + dy*dy )
+            
+            new_edge.physical.v1_x = x0 - this.mouse.x + this.settings.physical.coord_sys.x_offset
+            new_edge.physical.v1_y = y0 - this.mouse.y + this.settings.physical.coord_sys.y_offset
 
-              let dx = Math.abs( this.mouse.x - this.settings.physical.coord_sys.x_offset - this.getNodeById(new_edge.end_node).physical.x )
-              let dy = Math.abs( this.mouse.y - this.settings.physical.coord_sys.y_offset - this.getNodeById(new_edge.end_node).physical.y )
-              let c = Math.sqrt( dx*dx + dy*dy )
+            new_edge.physical.v2_x = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? x0 - this.mouse.x + this.settings.physical.coord_sys.x_offset :  new_edge.physical.v2_x
+            new_edge.physical.v2_y = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? y0 - this.mouse.y + this.settings.physical.coord_sys.y_offset :  new_edge.physical.v2_y
 
-              new_edge.physical.v1_x = this.mouse.x - this.settings.physical.coord_sys.x_offset - x0
-              new_edge.physical.v1_y = this.mouse.y - this.settings.physical.coord_sys.y_offset - y0
-
-              new_edge.physical.v2_x = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? this.mouse.x - this.settings.physical.coord_sys.x_offset - x0 :  new_edge.physical.v2_x
-              new_edge.physical.v2_y = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? this.mouse.y - this.settings.physical.coord_sys.y_offset - y0 :  new_edge.physical.v2_y
-            }
-            else{
-              let x0 = this.getNodeById(new_edge.start_node).physical.x + new_edge.physical.width
-              let y0 = this.getNodeById(new_edge.start_node).physical.y + new_edge.physical.height
-
-              let dx = Math.abs( this.mouse.x + this.settings.physical.coord_sys.x_offset - this.getNodeById(new_edge.end_node).physical.x )
-              let dy = Math.abs( this.mouse.y + this.settings.physical.coord_sys.y_offset - this.getNodeById(new_edge.end_node).physical.y )
-              let c = Math.sqrt( dx*dx + dy*dy )
-              
-              new_edge.physical.v1_x = x0 - this.mouse.x + this.settings.physical.coord_sys.x_offset
-              new_edge.physical.v1_y = y0 - this.mouse.y + this.settings.physical.coord_sys.y_offset
-
-              new_edge.physical.v2_x = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? x0 - this.mouse.x + this.settings.physical.coord_sys.x_offset :  new_edge.physical.v2_x
-              new_edge.physical.v2_y = ( c > this.settings.physical.node_size * this.settings.physical.safe_distance_factor ) ? y0 - this.mouse.y + this.settings.physical.coord_sys.y_offset :  new_edge.physical.v2_y
-
-            }
-          }, 10)
-        
-          document.addEventListener("mouseup", () => {
-            clearInterval(int);
-            this.mouse.lb_pressed = false
-          //<-- actions when we release the button
-            // console.log("release")
-        
-          })
-        }
-        else if ( this.tool == Tool.EDIT && e.button == 0 ){
-          this.focused_edge_2 = id
-          this.settings.show_curtain = true
-          this.settings.show_properties_window.edge_2 = true
-        }
-      });
-    }
+          }
+        }, 10)
+      
+        document.addEventListener("mouseup", () => {
+          clearInterval(int);
+          this.mouse.lb_pressed = false
+        //<-- actions when we release the button
+          // console.log("release")
+      
+        })
+      }
+      else if ( this.tool == Tool.EDIT && e.button == 0 ){
+        this.focused_edges[type] = id
+        this.settings.show_curtain = true
+        this.settings.show_properties_window.edges[type] = true
+      }
+    });
 
   }
 
   deleteNode( id:number ){
     let n = this.getNodeById(id)
 
-    for (let e of n.edges_1_in ){
-      this.deleteEdge1(e)
-    }
-    for (let e of n.edges_1_out ){
-      this.deleteEdge1(e)
-    }
-    for (let e of n.edges_2_in ){
-      this.deleteEdge2(e)
-    }
-    for (let e of n.edges_2_out ){
-      this.deleteEdge2(e)
+    for (let t=0; t<this.getEdgeTypesLength(); t++){
+      for (let e of n.edges_in[t] ){
+        this.deleteEdge(t,e)
+      }
+      for (let e of n.edges_out[t] ){
+        this.deleteEdge(t,e)
+      }
     }
 
     this.focused_node = -1
     this.graph.nodes = this.graph.nodes.filter( obj => obj.id !== id )
   }
 
-  deleteEdge1( id:number ){
-    let e = this.getEdge1ById(id)
+  deleteEdge( t: EdgeType, id:number ){
+    let e = this.getEdgeById(t,id)
     let start_node = this.getNodeById(e.start_node)
     let end_node = this.getNodeById(e.end_node)
     
-    start_node.edges_1_out = start_node.edges_1_out.filter( obj => obj !== id )
-    end_node.edges_1_in = end_node.edges_1_in.filter( obj => obj !== id )
+    start_node.edges_out[t] = start_node.edges_out[t].filter( obj => obj !== id )
+    end_node.edges_in[t] = end_node.edges_in[t].filter( obj => obj !== id )
 
-    this.focused_edge_1 = -1
-    this.graph.edges_1 = this.graph.edges_1.filter( obj => obj.id !== id )
+    this.focused_edges[t] = -1
+    this.graph.edges[t] = this.graph.edges[t].filter( obj => obj.id !== id )
   }
 
-  deleteEdge2( id:number ){
-    let e = this.getEdge2ById(id)
-    let start_node = this.getNodeById(e.start_node)
-    let end_node = this.getNodeById(e.end_node)
-    
-    start_node.edges_2_out = start_node.edges_2_out.filter( obj => obj !== id )
-    end_node.edges_2_in = end_node.edges_2_in.filter( obj => obj !== id )
-
-    this.focused_edge_2 = -1
-    this.graph.edges_2 = this.graph.edges_2.filter( obj => obj.id !== id )
-  }
-
-  isEdge1Flipped(e : number) : boolean{
-    let edge = this.getEdge1ById(e)
-    let x1 = this.getNodeById(edge  .start_node).physical.x
-    let x2 = this.getNodeById(edge.end_node).physical.x
-    return x1 > x2
-  }
-
-  isEdge2Flipped(e : number) : boolean{
-    let edge = this.getEdge2ById(e)
+  isEdgeFlipped(t: EdgeType, e : number) : boolean{
+    let edge = this.getEdgeById(t,e)
     let x1 = this.getNodeById(edge.start_node).physical.x
     let x2 = this.getNodeById(edge.end_node).physical.x
     return x1 > x2
   }
 
-  isEdge1LongEnough(e :number) : boolean{
-    let edge = this.getEdge1ById(e)
+  isEdgeLongEnough(t: EdgeType, e :number) : boolean{
+    let edge = this.getEdgeById(t, e)
     let dx = Math.abs( this.getNodeById(edge.start_node).physical.x - this.getNodeById(edge.end_node).physical.x )
     let dy = Math.abs( this.getNodeById(edge.start_node).physical.y - this.getNodeById(edge.end_node).physical.y )
     let c = Math.sqrt( dx*dx + dy*dy )
@@ -420,40 +318,24 @@ export class GraphEditorComponent implements OnInit {
     return c > this.settings.physical.node_size 
   }
 
-  isEdge2LongEnough(e :number) : boolean{
-    let edge = this.getEdge2ById(e)
-    let dx = Math.abs( this.getNodeById(edge.start_node).physical.x - this.getNodeById(edge.end_node).physical.x )
-    let dy = Math.abs( this.getNodeById(edge.start_node).physical.y - this.getNodeById(edge.end_node).physical.y )
-    let c = Math.sqrt( dx*dx + dy*dy )
-
-    return c > this.settings.physical.node_size 
-  }
-
-  async flipSelection(n : number){
-    if ( this.tool != Tool.ADDEDGE1 && this.tool != Tool.ADDEDGE2 ) return
-    if ( this.isSelected(n) ){
-      this.selected_nodes = this.selected_nodes.filter(x => x != n)
+  async flipSelection(e : number){
+    if ( this.tool != Tool.ADDEDGE ) return
+    if ( this.isSelected(e) ){
+      this.selected_nodes = this.selected_nodes.filter(x => x != e)
     }
     else{
-      this.selected_nodes.push(n)
+      this.selected_nodes.push(e)
     }
     if ( this.selected_nodes.length == 2 ) {
-      // @TODO: handle add edge
-      if ( this.tool == Tool.ADDEDGE1 ){
-        let e = this.graph.edges_1.length ? this.graph.edges_1[this.graph.edges_1.length - 1].id + 1 : 0
-        this.addEdge(this.selected_nodes[0],this.selected_nodes[1], EdgeType.E )
-        this.focused_edge_1 = e
-        this.settings.show_curtain = true
-        this.settings.show_properties_window.edge_1 = true
-      }
-      else{ // if ( this.tool == Tool.ADDEDGE2 ){
-        let e = this.graph.edges_2.length ? this.graph.edges_1[this.graph.edges_2.length - 1].id + 1 : 0
-        this.addEdge(this.selected_nodes[0],this.selected_nodes[1], EdgeType.F )
-        this.focused_edge_2 = e
-        this.settings.show_curtain = true
-        this.settings.show_properties_window.edge_2 = true
-      }
-      this.selected_nodes = []
+
+      let t : EdgeType = this.tool_edge_type
+      let e = this.graph.edges[t].length ? this.graph.edges[t][this.graph.edges[t].length - 1].id + 1 : 0
+      this.addEdge(this.selected_nodes[0],this.selected_nodes[1], t )
+      this.focused_edges[t] = e
+      this.settings.show_curtain = true
+      this.settings.show_properties_window.edges[t] = true
+
+      // this.selected_nodes = [] in curtain hiding
     }
   }
 
@@ -464,7 +346,7 @@ export class GraphEditorComponent implements OnInit {
 
   setTool(t: Tool){
     this.tool = t
-    if ( this.tool != Tool.ADDEDGE1 && this.tool != Tool.ADDEDGE2 ){
+    if ( this.tool != Tool.ADDEDGE ){
       this.selected_nodes = []
     }
   }
@@ -485,7 +367,7 @@ export class GraphEditorComponent implements OnInit {
       else if ( x == 'node' ) return 'inherit'
       else if ( x == 'edge' ) return 'inherit'
     }
-    else if ( this.tool == Tool.ADDEDGE1 || this.tool != Tool.ADDEDGE2 ){
+    else if ( this.tool == Tool.ADDEDGE ){
       if ( x == 'canvas' ) return 'default'
       else if ( x == 'node' ) return 'pointer'
       else if ( x == 'edge' ) return 'default'
@@ -496,16 +378,27 @@ export class GraphEditorComponent implements OnInit {
   closeCurtainAndPropertiesWindows(){
     this.settings.show_curtain = false
     this.settings.show_properties_window.node = false
-    this.settings.show_properties_window.edge_1 = false
-    this.settings.show_properties_window.edge_2 = false
+    for (let t=0; t<this.getEdgeTypesLength();t++){
+      this.settings.show_properties_window.edges[t] = false
+    }
     this.deletion_locked = true
+    this.selected_nodes = []
+  }
+
+  getEdgeTags(): string[]{
+    let tab = []
+    for ( let t=0; t<this.getEdgeTypesLength(); t++ ){
+      tab.push(this.getEdgeTag(t))
+    }
+    return tab
   }
 
   getEdgeTag(x:number): string{
-    if ( x == 1 ){
-      return EDGE_1_TAG
-    }
-    return EDGE_2_TAG // if x==2
+    return EdgeType[x]
+  }
+
+  setToolEdgeType(t: EdgeType){
+    this.tool_edge_type = t
   }
 
   getInputValueAsString(event : Event) : string {
@@ -516,7 +409,7 @@ export class GraphEditorComponent implements OnInit {
     return (event.target as HTMLInputElement).value as unknown as number;
   }
 
-  proceedDeletion(element_type: string){
+  proceedDeletion(element_type: string, edge_type: EdgeType = -1){
     if ( this.deletion_locked ){
       this.deletion_locked = false
       return 
@@ -526,11 +419,8 @@ export class GraphEditorComponent implements OnInit {
     if ( element_type == 'node'){
       this.deleteNode(this.focused_node)
     }
-    else if ( element_type == "edge_1" ){
-      this.deleteEdge1(this.focused_edge_1)
-    }
-    else if ( element_type == "edge_2" ){
-      this.deleteEdge2(this.focused_edge_2)
+    else if ( element_type == "edge" ){
+      this.deleteEdge(edge_type, this.focused_edges[edge_type])
     }
     this.closeCurtainAndPropertiesWindows()
   }

@@ -3,79 +3,78 @@
 	<button (click)="setTool(0)" class="tool-button" [ngClass]="{selected : tool == 0}">Hand</button>
 	<button (click)="setTool(1)" class="tool-button" [ngClass]="{selected : tool == 1}">Edit</button>
 	<button (click)="setTool(2)" class="tool-button" [ngClass]="{selected : tool == 2}">Add Node</button>
-	<button (click)="setTool(3)" class="tool-button" [ngClass]="{selected : tool == 3}">Add Edge {{getEdgeTag(1)}}</button>
-	<button (click)="setTool(4)" class="tool-button" [ngClass]="{selected : tool == 4}">Add Edge {{getEdgeTag(2)}}</button>
+	<button *ngFor="let tag of getEdgeTags(); let t = index" (click)="setTool(3); setToolEdgeType(t)" class="tool-button" [ngClass]="{selected : tool == 3 && tool_edge_type == t }">Add Edge {{tag}}</button>
 	<p><i>GENE Graph Editor</i> by Mateusz Mazur</p>
 </div>
 
 <!-- SECTION OF CANVAS -->
 <div id="canvas" [style.cursor]="getCursorStyle('canvas')">
-	<div id="cs-x-axis" [attr.style]="getCsAxisPosition(0)" ></div>
-	<div id="cs-y-axis" [attr.style]="getCsAxisPosition(1)" ></div>
-	<div *ngFor="let i of getCsAxisGrad(0)" class="cs-x-axis-grad"	[attr.style]="'width:'+settings.physical.coord_sys.grad_size+'px;'
-	+'top:'+(settings.physical.coord_sys.y_offset%settings.physical.coord_sys.grad_factor+i*settings.physical.coord_sys.grad_factor)+'px;'
-	+getCsAxisPosition(1, true)" ><p [attr.style]="getCsAxisGradLabelPosition(0)">{{getCsAxisGradLabelValue(1,i)}}</p></div>
-	<div *ngFor="let i of getCsAxisGrad(1)" class="cs-y-axis-grad"	[attr.style]="'height:'+settings.physical.coord_sys.grad_size+'px;'
-	+'left:'+(settings.physical.coord_sys.x_offset%settings.physical.coord_sys.grad_factor+i*settings.physical.coord_sys.grad_factor)+'px;'
-	+getCsAxisPosition(0, true)" ><p [attr.style]="getCsAxisGradLabelPosition(1)">{{getCsAxisGradLabelValue(0,i)}}</p></div>
-	<div class="cs-x-axis-grad centerer" [attr.style]="'width:'+settings.physical.coord_sys.grad_size+'px;'"></div>
-	<div class="cs-y-axis-grad centerer" [attr.style]="'height:'+settings.physical.coord_sys.grad_size+'px;'"></div>
-	<div id="cs-badge">
-		<p>
-			Looking at: <span (click)="resetOffset()"  title="Press to reset">({{getOffsetForPrint(0)}}, {{getOffsetForPrint(1)}})</span>
-		</p>
-		<p>
-			View panning: <span  (click)="toogleDraging()"  title="Press to toogle">{{settings.view_panning_enabled ? 'Unlocked' : 'Locked'}}</span>
-		</p>
+	<div id="coordinate-system">
+		<div id="cs-x-axis" [attr.style]="getCsAxisPosition(0)" ></div>
+		<div id="cs-y-axis" [attr.style]="getCsAxisPosition(1)" ></div>
+		<div *ngFor="let i of getCsAxisGrad(0)" class="cs-x-axis-grad"	[attr.style]="'width:'+settings.physical.coord_sys.grad_size+'px;'
+		+'top:'+(settings.physical.coord_sys.y_offset%settings.physical.coord_sys.grad_factor+i*settings.physical.coord_sys.grad_factor)+'px;'
+		+getCsAxisPosition(1, true)" ><p [attr.style]="getCsAxisGradLabelPosition(0)">{{getCsAxisGradLabelValue(1,i)}}</p></div>
+		<div *ngFor="let i of getCsAxisGrad(1)" class="cs-y-axis-grad"	[attr.style]="'height:'+settings.physical.coord_sys.grad_size+'px;'
+		+'left:'+(settings.physical.coord_sys.x_offset%settings.physical.coord_sys.grad_factor+i*settings.physical.coord_sys.grad_factor)+'px;'
+		+getCsAxisPosition(0, true)" ><p [attr.style]="getCsAxisGradLabelPosition(1)">{{getCsAxisGradLabelValue(0,i)}}</p></div>
+		<div class="cs-x-axis-grad centerer" [attr.style]="'width:'+settings.physical.coord_sys.grad_size+'px;'"></div>
+		<div class="cs-y-axis-grad centerer" [attr.style]="'height:'+settings.physical.coord_sys.grad_size+'px;'"></div>
+		<div id="cs-badge">
+			<p>
+				Looking at: <span (click)="resetOffset()"  title="Press to reset">({{getOffsetForPrint(0)}}, {{getOffsetForPrint(1)}})</span>
+			</p>
+			<p>
+				View panning: <span  (click)="toogleDraging()"  title="Press to toogle">{{settings.view_panning_enabled ? 'Unlocked' : 'Locked'}}</span>
+			</p>
+		</div>
 	</div>
-	<!-- EDGES 1 -->
-	<svg *ngFor="let e of graph.edges_1" id="edge-1-{{e.id}}" [class]="'edge edge-type-1'"
+	<!-- EDGES 0 -->
+	<svg *ngFor="let e of graph.edges[0]" id="edge-{{e.type}}-{{e.id}}" [class]="'edge edge-type-'+e.type"
 		[style.left.px]="this.settings.physical.coord_sys.x_offset +  e.physical.x" 
 		[style.top.px]="this.settings.physical.coord_sys.y_offset +  e.physical.y">
 		<defs>
-			<marker id="triangle-1-right" viewBox="2 0 10 10" refX="22" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-				<path d="M 0 0 L 10 5 L 0 10 z" [class]="'edge-type-1'" stroke-width="2"/>
-				<!-- https://yqnn.github.io/svg-path-editor/ -->
+			<marker [attr.id]="'triangle-'+e.type+'-right'" viewBox="2 0 10 10" refX="22" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+				<path d="M 0 0 L 10 5 L 0 10 z" [class]="'edge-type-'+e.type" stroke-width="2"/>
 			</marker>
-			<marker id="triangle-1-left" viewBox="0 0 9 10" refX="-12" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+			<marker [attr.id]="'triangle-'+e.type+'-left'"viewBox="0 0 9 10" refX="-12" refY="5" markerWidth="5" markerHeight="5" orient="auto">
 				<path d="M 10 0 L 0 5 L 10 10" stroke-width="2"/>
 			</marker>
 		</defs>
-		<path id="edge-1-{{e.id}}-path" [style.cursor]="getCursorStyle('edge')"
-			[attr.d]="!isEdge1Flipped(e.id) ? 'M 0 0 C ' + e.physical.v1_x + ' ' + e.physical.v1_y + ' ' + e.physical.v2_x + ' ' + e.physical.v2_y + ' ' + e.physical.width + ' ' + e.physical.height
+		<path id="edge-{{e.type}}-{{e.id}}-path" [style.cursor]="getCursorStyle('edge')"
+			[attr.d]="!isEdgeFlipped(e.type, e.id) ? 'M 0 0 C ' + e.physical.v1_x + ' ' + e.physical.v1_y + ' ' + e.physical.v2_x + ' ' + e.physical.v2_y + ' ' + e.physical.width + ' ' + e.physical.height
 			: 'M 0 0 C ' + e.physical.v2_x + ' ' + e.physical.v2_y + ' ' + e.physical.v1_x + ' ' + e.physical.v1_y + ' '  + e.physical.width + ' ' + e.physical.height"
-			[attr.marker-end]="!isEdge1Flipped(e.id) && isEdge1LongEnough(e.id) ? 'url(#triangle-1-right)' : ''"
-			[attr.marker-start]="isEdge1Flipped(e.id) && isEdge1LongEnough(e.id) ? 'url(#triangle-1-left)' : ''" 
-			stroke-width="5" fill="none" [attr.transform]="isEdge1Flipped(e.id) ? 'rotate(180, '+ e.physical.width + ', ' + e.physical.height + ') translate('+ e.physical.width + ', ' + e.physical.height + ')' : ''"/>
+			[attr.marker-end]="!isEdgeFlipped(e.type,e.id) && isEdgeLongEnough(e.type,e.id) ? 'url(#triangle-'+e.type+'-right)' : ''"
+			[attr.marker-start]="isEdgeFlipped(e.type,e.id) && isEdgeLongEnough(e.type,e.id) ? 'url(#triangle-'+e.type+'-left)' : ''" 
+			stroke-width="5" fill="none" [attr.transform]="isEdgeFlipped(e.type,e.id) ? 'rotate(180, '+ e.physical.width + ', ' + e.physical.height + ') translate('+ e.physical.width + ', ' + e.physical.height + ')' : ''"/>
 		<text>
-			<textPath [attr.xlink:href]="'#edge-1-'+e.id+'-path'" text-anchor="middle" startOffset="50%" >
+			<textPath [attr.xlink:href]="'#edge-'+e.type+'-'+e.id+'-path'" text-anchor="middle" startOffset="50%" >
 				<tspan>{{e.badge.text}}</tspan>
 				<tspan [attr.dy]="settings.physical.sub_text" font-size=".6em">{{e.badge.sub}}</tspan>
 				<tspan [attr.dy]="settings.physical.sup_text" font-size=".6em">{{e.badge.sup}}</tspan>
 			</textPath>
 		</text>
 	</svg>
-	<!-- EDGES 2 -->
-	<svg *ngFor="let e of graph.edges_2" id="edge-2-{{e.id}}" [class]="'edge edge-type-2'" 
+	<!-- EDGES 1 -->
+	<svg *ngFor="let e of graph.edges[1]" id="edge-{{e.type}}-{{e.id}}" [class]="'edge edge-type-'+e.type"
 		[style.left.px]="this.settings.physical.coord_sys.x_offset +  e.physical.x" 
 		[style.top.px]="this.settings.physical.coord_sys.y_offset +  e.physical.y">
 		<defs>
-			<marker id="triangle-2-right" viewBox="2 0 10 10" refX="22" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-				<path d="M 0 0 L 10 5 L 0 10 z" [class]="'edge-type-2'" stroke-width="2"/>
-				<!-- https://yqnn.github.io/svg-path-editor/ -->
+			<marker [attr.id]="'triangle-'+e.type+'-right'" viewBox="2 0 10 10" refX="22" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+				<path d="M 0 0 L 10 5 L 0 10 z" [class]="'edge-type-'+e.type" stroke-width="2"/>
 			</marker>
-			<marker id="triangle-2-left" viewBox="0 0 9 10" refX="-12" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+			<marker [attr.id]="'triangle-'+e.type+'-left'"viewBox="0 0 9 10" refX="-12" refY="5" markerWidth="5" markerHeight="5" orient="auto">
 				<path d="M 10 0 L 0 5 L 10 10" stroke-width="2"/>
 			</marker>
 		</defs>
-		<path id="edge-2-{{e.id}}-path" [style.cursor]="getCursorStyle('edge')"
-			[attr.d]="!isEdge2Flipped(e.id) ? 'M 0 0 C ' + e.physical.v1_x + ' ' + e.physical.v1_y + ' ' + e.physical.v2_x + ' ' + e.physical.v2_y + ' ' + e.physical.width + ' ' + e.physical.height
+		<path id="edge-{{e.type}}-{{e.id}}-path" [style.cursor]="getCursorStyle('edge')"
+			[attr.d]="!isEdgeFlipped(e.type, e.id) ? 'M 0 0 C ' + e.physical.v1_x + ' ' + e.physical.v1_y + ' ' + e.physical.v2_x + ' ' + e.physical.v2_y + ' ' + e.physical.width + ' ' + e.physical.height
 			: 'M 0 0 C ' + e.physical.v2_x + ' ' + e.physical.v2_y + ' ' + e.physical.v1_x + ' ' + e.physical.v1_y + ' '  + e.physical.width + ' ' + e.physical.height"
-			[attr.marker-end]="!isEdge2Flipped(e.id) && isEdge2LongEnough(e.id) ? 'url(#triangle-2-right)' : ''"
-			[attr.marker-start]="isEdge2Flipped(e.id) && isEdge2LongEnough(e.id) ? 'url(#triangle-2-left)' : ''" 
-			stroke-width="5" fill="none" [attr.transform]="isEdge2Flipped(e.id) ? 'rotate(180, '+ e.physical.width + ', ' + e.physical.height + ') translate('+ e.physical.width + ', ' + e.physical.height + ')' : ''"/>
-			<text>
-			<textPath [attr.xlink:href]="'#edge-2-'+e.id+'-path'" text-anchor="middle" startOffset="50%" >
+			[attr.marker-end]="!isEdgeFlipped(e.type,e.id) && isEdgeLongEnough(e.type,e.id) ? 'url(#triangle-'+e.type+'-right)' : ''"
+			[attr.marker-start]="isEdgeFlipped(e.type,e.id) && isEdgeLongEnough(e.type,e.id) ? 'url(#triangle-'+e.type+'-left)' : ''" 
+			stroke-width="5" fill="none" [attr.transform]="isEdgeFlipped(e.type,e.id) ? 'rotate(180, '+ e.physical.width + ', ' + e.physical.height + ') translate('+ e.physical.width + ', ' + e.physical.height + ')' : ''"/>
+		<text>
+			<textPath [attr.xlink:href]="'#edge-'+e.type+'-'+e.id+'-path'" text-anchor="middle" startOffset="50%" >
 				<tspan>{{e.badge.text}}</tspan>
 				<tspan [attr.dy]="settings.physical.sub_text" font-size=".6em">{{e.badge.sub}}</tspan>
 				<tspan [attr.dy]="settings.physical.sup_text" font-size=".6em">{{e.badge.sup}}</tspan>
@@ -98,8 +97,9 @@
 <!-- SECTION OF CURTAIN -->
 <div class="curtain" [ngClass]="{ show : settings.show_curtain }" (click)="closeCurtainAndPropertiesWindows()" >
 </div> 
+
+<!-- NODE PROPERTIES WINDOW -->
 <div class="properties-window" [ngClass]="{ show : settings.show_properties_window.node}">
-	<!-- NODE PROPERTIES WINDOW -->
 	<div class="properties-top-bar" >
 		<span>Node properties</span>
 		<button (click)="closeCurtainAndPropertiesWindows()">X</button>
@@ -131,69 +131,77 @@
 		{{ deletion_locked ? "Delete" : "Are you sure?" }}
 	</p>
 </div>
-<div class="properties-window" [ngClass]="{ show : settings.show_properties_window.edge_1 }">
-	<!-- EDGE 1 PROPERTIES WINDOW -->
-	<div class="properties-top-bar" >
-		<span>Edge {{getEdgeTag(1)}} properties</span>
-		<button  (click)="closeCurtainAndPropertiesWindows()">X</button>
+
+<!-- EDGE 0 PROPERTIES WINDOW -->
+<ng-container  *ngIf=" (0)+1 as edge_type ">
+	<div class="properties-window" [ngClass]="{ show : settings.show_properties_window.edges[edge_type-1] }">
+		<div class="properties-top-bar" >
+			<span>Edge {{getEdgeTag(1)}} properties</span>
+			<button  (click)="closeCurtainAndPropertiesWindows()">X</button>
+		</div>
+		<p class="pw-element">
+			Badge main text: <input class="pw-input" type="text" [value]="focused_edges[edge_type-1] !== -1 ? getEdgeById(edge_type-1, focused_edges[edge_type-1]).badge.text : ' '" 
+				(input)="focused_edges[edge_type-1] !== -1 ? getEdgeById(edge_type-1, focused_edges[edge_type-1]).badge.text = getInputValueAsString($event) : ' '">
+		</p>
+		<p class="pw-element">
+			Badge sup text: <input class="pw-input" type="text" [value]="focused_edges[edge_type-1] !== -1 ? getEdgeById(edge_type-1, focused_edges[edge_type-1]).badge.sup : ' '" 
+				(input)="focused_edges[edge_type-1] !== -1 ? getEdgeById(edge_type-1, focused_edges[edge_type-1]).badge.sup = getInputValueAsString($event) : ' '">
+		</p>
+		<p class="pw-element">
+			Badge sub text: <input class="pw-input" type="text" [value]="focused_edges[edge_type-1] !== -1 ? getEdgeById(edge_type-1, focused_edges[edge_type-1]).badge.sub : ' '" 
+				(input)="focused_edges[edge_type-1] !== -1 ? getEdgeById(edge_type-1, focused_edges[edge_type-1]).badge.sub = getInputValueAsString($event) : ' '">
+		</p>
+		<div class="pw-sep"></div>
+		<p class="pw-element" title="You cannot change this property in properties panel">
+			Start node: <span class="pw-input disabled">
+				{{focused_edges[edge_type-1] !== -1 ? getNodeById(getEdgeById(edge_type-1, focused_edges[edge_type-1]).start_node).badge.text : ' '}}<sub>{{focused_edges[edge_type-1] !== -1 ? getNodeById(getEdgeById(edge_type-1, focused_edges[edge_type-1]).start_node).badge.sub : ' '}}</sub><sup>{{focused_edges[edge_type-1] !== -1 ? getNodeById(getEdgeById(edge_type-1, focused_edges[edge_type-1]).start_node).badge.sup : ' '}}</sup>
+			</span>
+		</p>
+		<p class="pw-element" title="You cannot change this property in properties panel">
+			End node: <span class="pw-input disabled">{{focused_edges[edge_type-1] !== -1 ? getNodeById(getEdgeById(edge_type-1, focused_edges[edge_type-1]).end_node).badge.text : ' '}}<sub>{{focused_edges[edge_type-1] !== -1 ? getNodeById(getEdgeById(edge_type-1, focused_edges[edge_type-1]).end_node).badge.sub : ' '}}</sub><sup>{{focused_edges[edge_type-1] !== -1 ? getNodeById(getEdgeById(edge_type-1, focused_edges[edge_type-1]).end_node).badge.sup : ' '}}</sup>
+			</span> 
+		</p>
+		<p class="pw-element delete" (click)="proceedDeletion('edge_1')">
+			{{ deletion_locked ? "Delete" : "Are you sure?" }}
+		</p>
 	</div>
-	<p class="pw-element">
-		Badge main text: <input class="pw-input" type="text" [value]="focused_edge_1 !== -1 ? getEdge1ById(focused_edge_1).badge.text : ' '" 
-			(input)="focused_edge_1 !== -1 ? getEdge1ById(focused_edge_1).badge.text = getInputValueAsString($event) : ' '">
-	</p>
-	<p class="pw-element">
-		Badge sup text: <input class="pw-input" type="text" [value]="focused_edge_1 !== -1 ? getEdge1ById(focused_edge_1).badge.sup : ' '" 
-			(input)="focused_edge_1 !== -1 ? getEdge1ById(focused_edge_1).badge.sup = getInputValueAsString($event) : ' '">
-	</p>
-	<p class="pw-element">
-		Badge sub text: <input class="pw-input" type="text" [value]="focused_edge_1 !== -1 ? getEdge1ById(focused_edge_1).badge.sub : ' '" 
-			(input)="focused_edge_1 !== -1 ? getEdge1ById(focused_edge_1).badge.sub = getInputValueAsString($event) : ' '">
-	</p>
-	<div class="pw-sep"></div>
-	<p class="pw-element" title="You cannot change this property in properties panel">
-		Start node: <span class="pw-input disabled">
-			{{focused_edge_1 !== -1 ? getNodeById(getEdge1ById(focused_edge_1).start_node).badge.text : ' '}}<sub>{{focused_edge_1 !== -1 ? getNodeById(getEdge1ById(focused_edge_1).start_node).badge.sub : ' '}}</sub><sup>{{focused_edge_1 !== -1 ? getNodeById(getEdge1ById(focused_edge_1).start_node).badge.sup : ' '}}</sup>
-		</span>
-	</p>
-	<p class="pw-element" title="You cannot change this property in properties panel">
-		End node: <span class="pw-input disabled">{{focused_edge_1 !== -1 ? getNodeById(getEdge1ById(focused_edge_1).end_node).badge.text : ' '}}<sub>{{focused_edge_1 !== -1 ? getNodeById(getEdge1ById(focused_edge_1).end_node).badge.sub : ' '}}</sub><sup>{{focused_edge_1 !== -1 ? getNodeById(getEdge1ById(focused_edge_1).end_node).badge.sup : ' '}}</sup>
-		</span> 
-	</p>
-	<p class="pw-element delete" (click)="proceedDeletion('edge_1')">
-		{{ deletion_locked ? "Delete" : "Are you sure?" }}
-	</p>
-</div>
-<div class="properties-window" [ngClass]="{ show : settings.show_properties_window.edge_2 }">
-	<!-- EDGE 2 PROPERTIES WINDOW -->
-	<div class="properties-top-bar" >
-		<span>Edge {{getEdgeTag(2)}} properties</span>
-		<button  (click)="closeCurtainAndPropertiesWindows()">X</button>
+</ng-container>
+
+<!-- EDGE 1 PROPERTIES WINDOW -->
+<ng-container  *ngIf=" (1)+1 as edge_type ">
+	<div class="properties-window" [ngClass]="{ show : settings.show_properties_window.edges[edge_type-1] }">
+		<div class="properties-top-bar" >
+			<span>Edge {{getEdgeTag(1)}} properties</span>
+			<button  (click)="closeCurtainAndPropertiesWindows()">X</button>
+		</div>
+		<p class="pw-element">
+			Badge main text: <input class="pw-input" type="text" [value]="focused_edges[edge_type-1] !== -1 ? getEdgeById(edge_type-1, focused_edges[edge_type-1]).badge.text : ' '" 
+				(input)="focused_edges[edge_type-1] !== -1 ? getEdgeById(edge_type-1, focused_edges[edge_type-1]).badge.text = getInputValueAsString($event) : ' '">
+		</p>
+		<p class="pw-element">
+			Badge sup text: <input class="pw-input" type="text" [value]="focused_edges[edge_type-1] !== -1 ? getEdgeById(edge_type-1, focused_edges[edge_type-1]).badge.sup : ' '" 
+				(input)="focused_edges[edge_type-1] !== -1 ? getEdgeById(edge_type-1, focused_edges[edge_type-1]).badge.sup = getInputValueAsString($event) : ' '">
+		</p>
+		<p class="pw-element">
+			Badge sub text: <input class="pw-input" type="text" [value]="focused_edges[edge_type-1] !== -1 ? getEdgeById(edge_type-1, focused_edges[edge_type-1]).badge.sub : ' '" 
+				(input)="focused_edges[edge_type-1] !== -1 ? getEdgeById(edge_type-1, focused_edges[edge_type-1]).badge.sub = getInputValueAsString($event) : ' '">
+		</p>
+		<div class="pw-sep"></div>
+		<p class="pw-element" title="You cannot change this property in properties panel">
+			Start node: <span class="pw-input disabled">
+				{{focused_edges[edge_type-1] !== -1 ? getNodeById(getEdgeById(edge_type-1, focused_edges[edge_type-1]).start_node).badge.text : ' '}}<sub>{{focused_edges[edge_type-1] !== -1 ? getNodeById(getEdgeById(edge_type-1, focused_edges[edge_type-1]).start_node).badge.sub : ' '}}</sub><sup>{{focused_edges[edge_type-1] !== -1 ? getNodeById(getEdgeById(edge_type-1, focused_edges[edge_type-1]).start_node).badge.sup : ' '}}</sup>
+			</span>
+		</p>
+		<p class="pw-element" title="You cannot change this property in properties panel">
+			End node: <span class="pw-input disabled">{{focused_edges[edge_type-1] !== -1 ? getNodeById(getEdgeById(edge_type-1, focused_edges[edge_type-1]).end_node).badge.text : ' '}}<sub>{{focused_edges[edge_type-1] !== -1 ? getNodeById(getEdgeById(edge_type-1, focused_edges[edge_type-1]).end_node).badge.sub : ' '}}</sub><sup>{{focused_edges[edge_type-1] !== -1 ? getNodeById(getEdgeById(edge_type-1, focused_edges[edge_type-1]).end_node).badge.sup : ' '}}</sup>
+			</span> 
+		</p>
+		<p class="pw-element delete" (click)="proceedDeletion('edge_1')">
+			{{ deletion_locked ? "Delete" : "Are you sure?" }}
+		</p>
 	</div>
-	<p class="pw-element">
-		Badge main text: <input class="pw-input" type="text" [value]="focused_edge_2 !== -1 ? getEdge2ById(focused_edge_2).badge.text : ' '" 
-			(input)="focused_edge_2 !== -1 ? getEdge2ById(focused_edge_2).badge.text = getInputValueAsString($event) : ' '">
-	</p>
-	<p class="pw-element">
-		Badge sup text: <input class="pw-input" type="text" [value]="focused_edge_2 !== -1 ? getEdge2ById(focused_edge_2).badge.sup : ' '" 
-			(input)="focused_edge_2 !== -1 ? getEdge2ById(focused_edge_2).badge.sup = getInputValueAsString($event) : ' '">
-	</p>
-	<p class="pw-element">
-		Badge sub text: <input class="pw-input" type="text" [value]="focused_edge_2 !== -1 ? getEdge2ById(focused_edge_2).badge.sub : ' '" 
-			(input)="focused_edge_2 !== -1 ? getEdge2ById(focused_edge_2).badge.sub = getInputValueAsString($event) : ' '">
-	</p>
-	<div class="pw-sep"></div>
-	<p class="pw-element" title="You cannot change this property in properties panel">
-		Start node: <span class="pw-input disabled">{{focused_edge_2 !== -1 ? getNodeById(getEdge2ById(focused_edge_2).start_node).badge.text : ' '}}<sub>{{focused_edge_2 !== -1 ? getNodeById(getEdge2ById(focused_edge_2).start_node).badge.sub : ' '}}</sub><sup>{{focused_edge_2 !== -1 ? getNodeById(getEdge2ById(focused_edge_2).start_node).badge.sup : ' '}}</sup>
-		</span>
-	</p>
-	<p class="pw-element" title="You cannot change this property in properties panel">
-		End node: <span class="pw-input disabled">{{focused_edge_2 !== -1 ? getNodeById(getEdge2ById(focused_edge_2).end_node).badge.text : ' '}}<sub>{{focused_edge_2 !== -1 ? getNodeById(getEdge2ById(focused_edge_2).end_node).badge.sub : ' '}}</sub><sup>{{focused_edge_2 !== -1 ? getNodeById(getEdge2ById(focused_edge_2).end_node).badge.sup : ' '}}</sup>
-		</span> 
-	</p>
-	<p class="pw-element delete" (click)="proceedDeletion('edge_2')">
-		{{ deletion_locked ? "Delete" : "Are you sure?" }}
-	</p>
-</div>
+</ng-container>
+
 
 <!-- @FIXME: 
 	- move canvas content to relative => implement camera moving & maybe zoom
