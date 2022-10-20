@@ -161,7 +161,7 @@
 			End node: <span class="pw-input disabled">{{focused_edges[edge_type-1] !== -1 ? getNodeById(getEdgeById(edge_type-1, focused_edges[edge_type-1]).end_node).badge.text : ' '}}<sub>{{focused_edges[edge_type-1] !== -1 ? getNodeById(getEdgeById(edge_type-1, focused_edges[edge_type-1]).end_node).badge.sub : ' '}}</sub><sup>{{focused_edges[edge_type-1] !== -1 ? getNodeById(getEdgeById(edge_type-1, focused_edges[edge_type-1]).end_node).badge.sup : ' '}}</sup>
 			</span> 
 		</p>
-		<p class="pw-element delete" (click)="proceedDeletion('edge_1')">
+		<p class="pw-element delete" (click)="proceedDeletion('edge',edge_type-1)">
 			{{ deletion_locked ? "Delete" : "Are you sure?" }}
 		</p>
 	</div>
@@ -196,7 +196,7 @@
 			End node: <span class="pw-input disabled">{{focused_edges[edge_type-1] !== -1 ? getNodeById(getEdgeById(edge_type-1, focused_edges[edge_type-1]).end_node).badge.text : ' '}}<sub>{{focused_edges[edge_type-1] !== -1 ? getNodeById(getEdgeById(edge_type-1, focused_edges[edge_type-1]).end_node).badge.sub : ' '}}</sub><sup>{{focused_edges[edge_type-1] !== -1 ? getNodeById(getEdgeById(edge_type-1, focused_edges[edge_type-1]).end_node).badge.sup : ' '}}</sup>
 			</span> 
 		</p>
-		<p class="pw-element delete" (click)="proceedDeletion('edge_1')">
+		<p class="pw-element delete" (click)="proceedDeletion('edge',edge_type-1)">
 			{{ deletion_locked ? "Delete" : "Are you sure?" }}
 		</p>
 	</div>
