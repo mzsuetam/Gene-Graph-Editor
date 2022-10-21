@@ -244,8 +244,8 @@ export class GraphEditorComponent implements OnInit {
             let x0 = this.getNodeById(new_edge.start_node).physical.x + new_edge.physical.width
             let y0 = this.getNodeById(new_edge.start_node).physical.y + new_edge.physical.height
 
-            let dx = Math.abs( this.mouse.x + this.settings.physical.coord_sys.x_offset - this.getNodeById(new_edge.end_node).physical.x )
-            let dy = Math.abs( this.mouse.y + this.settings.physical.coord_sys.y_offset - this.getNodeById(new_edge.end_node).physical.y )
+            let dx = Math.abs( this.mouse.x - this.settings.physical.coord_sys.x_offset - this.getNodeById(new_edge.end_node).physical.x )
+            let dy = Math.abs( this.mouse.y - this.settings.physical.coord_sys.y_offset - this.getNodeById(new_edge.end_node).physical.y )
             let c = Math.sqrt( dx*dx + dy*dy )
             
             new_edge.physical.v1_x = x0 - this.mouse.x + this.settings.physical.coord_sys.x_offset
